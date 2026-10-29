@@ -29,8 +29,9 @@ public class GamePlan {
         }
 
         if (bestVehicle.getLevel() < passage.getRequiredTransport().getLevel()) {
-            return "Do lokality " + destinationName + " se s tvým dopravním prostředkem nedostaneš. Vyžaduje: "
-                    + passage.getRequiredTransport();
+            return "Do lokality " + passage.getDestination().getName()
+                    + " se s tvým dopravním prostředkem nedostaneš. Vyžaduje: "
+                    + passage.getRequiredTransport().getDisplayName();
         }
 
         int requiredEnergy = passage.getEnergyCost(bestVehicle, hasEngineTuning);
