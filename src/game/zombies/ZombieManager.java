@@ -4,13 +4,6 @@ import java.util.List;
 
 public class ZombieManager {
 
-    /**
-     * Vyhodnotí noční útok zombie na pole.
-     *
-     * @param day aktuální herní den
-     * @param defense stav obrany farmy
-     * @return výsledek střetu (NightRaidResult)
-     */
     public NightRaidResult resolveNightRaid(int day, DefenseStatus defense) {
         List<Zombie> wave = ZombieWaveFactory.createWaveForDay(day);
         StringBuilder log = new StringBuilder();
