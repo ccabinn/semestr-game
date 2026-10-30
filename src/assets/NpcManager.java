@@ -17,7 +17,7 @@ public class NpcManager {
     public void talk(String npcId, GameContext ctx) {
         Npc npc = npcs.get(npcId);
         if (npc == null) {
-            ctx.print("neznámá postava.");
+            ctx.print("Neznámá postava.");
             return;
         }
 
@@ -42,5 +42,52 @@ public class NpcManager {
 
         ctx.print("Úkol: " + quest.getName());
         ctx.print(quest.describeRequirements());
+    }
+
+    public void handIn(String npcId, GameContext ctx) {
+        Npc npc = npcs.get(npcId);
+        if (npc == null) {
+            ctx.print("Neznámá postava.");
+            return;
+        }
+
+        if (!npc.getLocationId().equals(ctx.getCurrentLocationId())) {
+            ctx.print(npc.getName() + " tu není.");
+            return;
+        }
+
+        Quest quest = npc.getCurrentQuest();
+        if (quest == null) {
+            ctx.print(npc.getName() + " pro tebe nemá žádný úkol.");
+            return;
+        }
+
+        if (quest.getQuestState() == QuestState.INACTIVE) {
+            ctx.print("Nejdřív si s postavou promluv (mluv " + npcId + ").");
+            return;
+        }
+
+        //kontrola
+        for (Requirement r : quest.getRequirements()) {
+            if (!r.isMetBy(ctx)) {
+                ctx.print(npc.getName() + ": \"" + quest.getNotDoneDialog() + "\"");
+                ctx.print("Chybí ti: " + r);
+                return;
+            }
+        }
+
+        //odebirani
+        for (Requirement r : quest.getRequirements()) {
+            r.takeFrom(ctx);
+        }
+
+        //completion
+        quest.setQuestState(QuestState.DONE);
+        ctx.print(npc.getName() + ": \"" + quest.getFinalDialog() + "\"");
+        ctx.print("Úkol \"" + quest.getName() + "\" splněn!");
+        if (quest.getRewardMoney() > 0) {
+            ctx.addMoney(quest.getRewardMoney());
+            ctx.print("Odměna: +" + quest.getRewardMoney() + " Kč.");
+        }
     }
 }

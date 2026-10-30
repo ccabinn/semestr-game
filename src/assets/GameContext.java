@@ -6,4 +6,5 @@ public interface GameContext {
     int countItem(String itemId);
     void removeItem(String itemId, int count);
     void addMoney(int amount);
+    int getMoney();
 }

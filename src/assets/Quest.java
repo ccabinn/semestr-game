@@ -5,17 +5,16 @@ import java.util.List;
 public class Quest {
     private final String name;
     private final List<Requirement> requirements;
-    private String dialog;
     private QuestState questState = QuestState.INACTIVE;
     private final int rewardMoney;
-    private String introDialog;
-    private String finalDialog;
-    private String notDoneDialog;
+    private final String introDialog;
+    private final String finalDialog;
+    private final String notDoneDialog;
 
     public String describeRequirements() {
         StringBuilder sb = new StringBuilder();
         for (Requirement r : requirements) {
-            sb.append("- ").append(r).append("\n");
+            sb.append("- ").append(r);
         }
         return sb.toString();
     }
@@ -30,10 +29,6 @@ public class Quest {
 
     public QuestState getQuestState() {
         return questState;
-    }
-
-    public String getDialog() {
-        return dialog;
     }
 
     public String getIntroDialog(){
