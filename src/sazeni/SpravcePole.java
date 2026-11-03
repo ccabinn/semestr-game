@@ -1,5 +1,7 @@
 package sazeni;
 
+import player.Player;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,7 +31,7 @@ public class SpravcePole {
 
     // Mechanika: obstarej
     // Bere ohled na kropítka (0 až 4 ks) a počasí (JASNO, SUCHO, ZAPLAVY)[cite: 1]
-    public void obstarejPole(Hrac hrac, String pocasi, int pocetKropitek) {
+    public void obstarejPole(Player hrac, String pocasi, int pocetKropitek) {
         boolean jeSucho = pocasi.equals("SUCHO");
         boolean jsouZaplavy = pocasi.equals("ZAPLAVY");
 
@@ -65,13 +67,13 @@ public class SpravcePole {
 
         int celkovaEnergie = pocetKZaliti * cenaZaZahonek;
 
-        if (hrac.getEnergie() < celkovaEnergie) {
+        if (hrac.getEnergy() < celkovaEnergie) {
             System.out.println("Nemáš dostatek energie na obstarání pole! Potřebuješ " + celkovaEnergie);
             return;
         }
 
         // Odečtení energie hráči a označení záhonků jako zalitých
-        hrac.uberEnergii(celkovaEnergie);
+        hrac.removeEnergy(celkovaEnergie);
         for (Zahonek z : zahonky) {
             if (z.vyzadujePeci(jeSucho)) {
                 z.setDnesZalito(true);
