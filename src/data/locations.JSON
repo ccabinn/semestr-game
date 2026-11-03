@@ -1,0 +1,135 @@
+[
+  {
+    "id": "home",
+    "name": "Dům",
+    "description": "Nacházíš se ve svém domě na farmě. Venku je klid.",
+    "passages": [
+      {
+        "targetId": "field",
+        "requiredTransport": "FOOT",
+        "bikeEnergy": 0,
+        "carEnergy": 0,
+        "vanEnergy": 0
+      },
+      {
+        "targetId": "local_market",
+        "requiredTransport": "BIKE",
+        "bikeEnergy": 20,
+        "carEnergy": 10,
+        "vanEnergy": 5
+      },
+      {
+        "targetId": "city",
+        "requiredTransport": "CAR",
+        "bikeEnergy": 999,
+        "carEnergy": 20,
+        "vanEnergy": 10
+      }
+    ]
+  },
+  {
+    "id": "field",
+    "name": "Pole",
+    "description": "Stojíš na poli u záhonků a studny.",
+    "passages": [
+      {
+        "targetId": "home",
+        "requiredTransport": "FOOT",
+        "bikeEnergy": 0,
+        "carEnergy": 0,
+        "vanEnergy": 0
+      }
+    ]
+  },
+  {
+    "id": "local_market",
+    "name": "Místní trh",
+    "description": "Místní tržiště s nabídkovým zbožím.",
+    "passages": [
+      {
+        "targetId": "home",
+        "requiredTransport": "BIKE",
+        "bikeEnergy": 20,
+        "carEnergy": 10,
+        "vanEnergy": 5
+      }
+    ]
+  },
+  {
+    "id": "city",
+    "name": "Město",
+    "description": "Náměstí zničeného města sloužící jako rozcestník.",
+    "passages": [
+      {
+        "targetId": "home",
+        "requiredTransport": "CAR",
+        "bikeEnergy": 999,
+        "carEnergy": 20,
+        "vanEnergy": 10
+      },
+      {
+        "targetId": "autobazar",
+        "requiredTransport": "FOOT",
+        "bikeEnergy": 0,
+        "carEnergy": 0,
+        "vanEnergy": 0
+      },
+      {
+        "targetId": "army_shop",
+        "requiredTransport": "FOOT",
+        "bikeEnergy": 0,
+        "carEnergy": 0,
+        "vanEnergy": 0
+      },
+      {
+        "targetId": "city_market",
+        "requiredTransport": "VAN",
+        "bikeEnergy": 999,
+        "carEnergy": 999,
+        "vanEnergy": 5
+      }
+    ]
+  },
+  {
+    "id": "autobazar",
+    "name": "Autobazar",
+    "description": "Prodejna vozů a dílna mechanika Romana.",
+    "passages": [
+      {
+        "targetId": "city",
+        "requiredTransport": "FOOT",
+        "bikeEnergy": 0,
+        "carEnergy": 0,
+        "vanEnergy": 0
+      }
+    ]
+  },
+  {
+    "id": "army_shop",
+    "name": "Army shop",
+    "description": "Armádní obchod s vybavením pro přežití.",
+    "passages": [
+      {
+        "targetId": "city",
+        "requiredTransport": "FOOT",
+        "bikeEnergy": 0,
+        "carEnergy": 0,
+        "vanEnergy": 0
+      }
+    ]
+  },
+  {
+    "id": "city_market",
+    "name": "Městský trh",
+    "description": "Velké městské tržiště a polní laboratoř.",
+    "passages": [
+      {
+        "targetId": "city",
+        "requiredTransport": "VAN",
+        "bikeEnergy": 999,
+        "carEnergy": 999,
+        "vanEnergy": 5
+      }
+    ]
+  }
+]
