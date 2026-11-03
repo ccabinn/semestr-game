@@ -1,0 +1,394 @@
+[
+  {
+    "id": "seminko_obili",
+    "name": "Semínko obilí",
+    "type": "SEED",
+    "price": 1,
+    "value": 0,
+    "description": "Semínko obilí k zasazení na pole."
+  },
+  {
+    "id": "obili",
+    "name": "Obilí",
+    "type": "CROP",
+    "price": 3,
+    "value": 0,
+    "description": "Čerstvě sklizené obilí."
+  },
+  {
+    "id": "seminko_salat",
+    "name": "Semínko salátu",
+    "type": "SEED",
+    "price": 2,
+    "value": 0,
+    "description": "Semínko hlávkového salátu k zasazení na pole."
+  },
+  {
+    "id": "salat",
+    "name": "Hlávkový salát",
+    "type": "CROP",
+    "price": 5,
+    "value": 0,
+    "description": "Čerstvě sklizený hlávkový salát."
+  },
+  {
+    "id": "seminko_cibule",
+    "name": "Semínko cibule",
+    "type": "SEED",
+    "price": 2,
+    "value": 0,
+    "description": "Semínko cibule k zasazení na pole."
+  },
+  {
+    "id": "cibule",
+    "name": "Cibule",
+    "type": "CROP",
+    "price": 6,
+    "value": 0,
+    "description": "Čerstvě sklizená cibule."
+  },
+  {
+    "id": "seminko_spenat",
+    "name": "Semínko špenátu",
+    "type": "SEED",
+    "price": 2,
+    "value": 0,
+    "description": "Semínko špenátu k zasazení na pole."
+  },
+  {
+    "id": "spenat",
+    "name": "Špenát",
+    "type": "CROP",
+    "price": 7,
+    "value": 0,
+    "description": "Čerstvě sklizený špenát."
+  },
+  {
+    "id": "seminko_mrkev",
+    "name": "Semínko mrkve",
+    "type": "SEED",
+    "price": 2,
+    "value": 0,
+    "description": "Semínko mrkve k zasazení na pole."
+  },
+  {
+    "id": "mrkev",
+    "name": "Mrkev",
+    "type": "CROP",
+    "price": 7,
+    "value": 0,
+    "description": "Čerstvě sklizená mrkev."
+  },
+  {
+    "id": "seminko_brambory",
+    "name": "Semínko brambor",
+    "type": "SEED",
+    "price": 3,
+    "value": 0,
+    "description": "Semínko brambor k zasazení na pole."
+  },
+  {
+    "id": "brambory",
+    "name": "Brambory",
+    "type": "CROP",
+    "price": 8,
+    "value": 0,
+    "description": "Čerstvě sklizené brambory."
+  },
+  {
+    "id": "seminko_dyne",
+    "name": "Semínko dýně",
+    "type": "SEED",
+    "price": 4,
+    "value": 0,
+    "description": "Semínko dýně k zasazení na pole."
+  },
+  {
+    "id": "dyne",
+    "name": "Dýně",
+    "type": "CROP",
+    "price": 12,
+    "value": 0,
+    "description": "Čerstvě sklizená dýně."
+  },
+  {
+    "id": "seminko_cesnek",
+    "name": "Semínko česneku",
+    "type": "SEED",
+    "price": 5,
+    "value": 0,
+    "description": "Semínko česneku k zasazení na pole."
+  },
+  {
+    "id": "cesnek",
+    "name": "Česnek",
+    "type": "CROP",
+    "price": 14,
+    "value": 0,
+    "description": "Čerstvě sklizený česnek."
+  },
+  {
+    "id": "seminko_jahody",
+    "name": "Semínko jahod",
+    "type": "SEED",
+    "price": 5,
+    "value": 0,
+    "description": "Semínko jahod k zasazení na pole."
+  },
+  {
+    "id": "jahody",
+    "name": "Jahody",
+    "type": "CROP",
+    "price": 16,
+    "value": 0,
+    "description": "Čerstvě sklizené sladké jahody."
+  },
+  {
+    "id": "seminko_maliny",
+    "name": "Semínko malin",
+    "type": "SEED",
+    "price": 5,
+    "value": 0,
+    "description": "Semínko malin k zasazení na pole."
+  },
+  {
+    "id": "maliny",
+    "name": "Maliny",
+    "type": "CROP",
+    "price": 16,
+    "value": 0,
+    "description": "Čerstvě sklizené maliny."
+  },
+  {
+    "id": "seminko_boruvky",
+    "name": "Semínko borůvek",
+    "type": "SEED",
+    "price": 5,
+    "value": 0,
+    "description": "Semínko borůvek k zasazení na pole."
+  },
+  {
+    "id": "boruvky",
+    "name": "Borůvky",
+    "type": "CROP",
+    "price": 16,
+    "value": 0,
+    "description": "Čerstvě sklizené borůvky."
+  },
+  {
+    "id": "seminko_jablka",
+    "name": "Semínko jablek",
+    "type": "SEED",
+    "price": 6,
+    "value": 0,
+    "description": "Semínko jablek k zasazení na pole."
+  },
+  {
+    "id": "jablka",
+    "name": "Jablka",
+    "type": "CROP",
+    "price": 17,
+    "value": 0,
+    "description": "Čerstvě sklizená jablka."
+  },
+  {
+    "id": "seminko_hrusky",
+    "name": "Semínko hrušek",
+    "type": "SEED",
+    "price": 6,
+    "value": 0,
+    "description": "Semínko hrušek k zasazení na pole."
+  },
+  {
+    "id": "hrusky",
+    "name": "Hrušky",
+    "type": "CROP",
+    "price": 17,
+    "value": 0,
+    "description": "Čerstvě sklizené hrušky."
+  },
+  {
+    "id": "seminko_merunky",
+    "name": "Semínko meruněk",
+    "type": "SEED",
+    "price": 6,
+    "value": 0,
+    "description": "Semínko meruněk k zasazení na pole."
+  },
+  {
+    "id": "merunky",
+    "name": "Meruňky",
+    "type": "CROP",
+    "price": 18,
+    "value": 0,
+    "description": "Čerstvě sklizené meruňky."
+  },
+  {
+    "id": "seminko_broskev",
+    "name": "Semínko broskví",
+    "type": "SEED",
+    "price": 7,
+    "value": 0,
+    "description": "Semínko broskví k zasazení na pole."
+  },
+  {
+    "id": "broskev",
+    "name": "Broskve",
+    "type": "CROP",
+    "price": 20,
+    "value": 0,
+    "description": "Čerstvě sklizené broskve."
+  },
+  {
+    "id": "seminko_meloun",
+    "name": "Semínko melounu",
+    "type": "SEED",
+    "price": 8,
+    "value": 0,
+    "description": "Semínko melounu k zasazení na pole."
+  },
+  {
+    "id": "meloun",
+    "name": "Meloun",
+    "type": "CROP",
+    "price": 24,
+    "value": 0,
+    "description": "Čerstvě sklizený geneticky čistý meloun."
+  },
+  {
+    "id": "chleb",
+    "name": "Chléb",
+    "type": "FOOD",
+    "price": 8,
+    "value": 15,
+    "description": "Základní pečivo, doplní 15 energie."
+  },
+  {
+    "id": "syr",
+    "name": "Sýr",
+    "type": "FOOD",
+    "price": 14,
+    "value": 25,
+    "description": "Poctivý sýr, doplní 25 energie."
+  },
+  {
+    "id": "uzene_maso",
+    "name": "Uzené maso",
+    "type": "FOOD",
+    "price": 22,
+    "value": 40,
+    "description": "Vydatné uzené maso, doplní 40 energie."
+  },
+  {
+    "id": "polevka",
+    "name": "Polévka",
+    "type": "FOOD",
+    "price": 30,
+    "value": 55,
+    "description": "Teplá městská polévka, doplní 55 energie."
+  },
+  {
+    "id": "kolac",
+    "name": "Koláč",
+    "type": "FOOD",
+    "price": 40,
+    "value": 75,
+    "description": "Sladký koláč, doplní 75 energie."
+  },
+  {
+    "id": "gulas",
+    "name": "Guláš",
+    "type": "FOOD",
+    "price": 55,
+    "value": 100,
+    "description": "Poctivý městský guláš, kompletně doplní 100 energie."
+  },
+  {
+    "id": "pes",
+    "name": "Hlídací pes",
+    "type": "DEFENSE_PASSIVE",
+    "price": 60,
+    "value": 15,
+    "description": "Hlídací pes dodávající +15 pasivní obrany (pokud je nakrmený)."
+  },
+  {
+    "id": "krmeni_psy",
+    "name": "Krmení pro psy",
+    "type": "DOG_FOOD",
+    "price": 30,
+    "value": 5,
+    "description": "Nakrmí všechny hlídací psy na 5 dní."
+  },
+  {
+    "id": "plot",
+    "name": "Dřevěný plot",
+    "type": "DEFENSE_PASSIVE",
+    "price": 80,
+    "value": 20,
+    "description": "Trvalý dřevěný plot odolný vůči záplavám (+20 pasivní obrany)."
+  },
+  {
+    "id": "elektricka_ohrada",
+    "name": "Elektrická ohrada",
+    "type": "DEFENSE_PASSIVE",
+    "price": 180,
+    "value": 45,
+    "description": "Elektrická ohrada (+45 pasivní obrany). Může zkratovat při záplavách."
+  },
+  {
+    "id": "turret",
+    "name": "Automatická věž (Turret)",
+    "type": "DEFENSE_PASSIVE",
+    "price": 350,
+    "value": 80,
+    "description": "Automatická obranná věž (+80 pasivní obrany). Může zkratovat při záplavách."
+  },
+  {
+    "id": "puska",
+    "name": "Puška",
+    "type": "WEAPON",
+    "price": 120,
+    "value": 35,
+    "description": "Aktivní zbraň pro noční hlídku (+35 obrana, vyžaduje bdělost)."
+  },
+  {
+    "id": "brokovnice",
+    "name": "Brokovnice",
+    "type": "WEAPON",
+    "price": 240,
+    "value": 70,
+    "description": "Silná aktivní zbraň pro noční hlídku (+70 obrana, vyžaduje bdělost)."
+  },
+  {
+    "id": "kropitko",
+    "name": "Kropítko",
+    "type": "UPGRADE",
+    "price": 100,
+    "value": 1,
+    "description": "Snižuje spotřebu energie při obstarávání záhonků o 1 bod (max 4 ks)."
+  },
+  {
+    "id": "hlubsi_studna",
+    "name": "Hlubší studna",
+    "type": "UPGRADE",
+    "price": 120,
+    "value": 1,
+    "description": "Prodlouží výdrž studny během sucha o +1 den za každou úroveň."
+  },
+  {
+    "id": "auto",
+    "name": "Ojeté Auto",
+    "type": "VEHICLE",
+    "price": 150,
+    "value": 2,
+    "description": "Ojeté auto, odemyká cestu do Města a zlevňuje cestování."
+  },
+  {
+    "id": "dodavka",
+    "name": "Dodávka",
+    "type": "VEHICLE",
+    "price": 300,
+    "value": 3,
+    "description": "Prostorná dodávka, odemyká Městský trh a výrazně zlevňuje cestování."
+  }
+]
