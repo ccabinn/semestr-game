@@ -1,4 +1,4 @@
-package assets;
+package inventory;
 
 public class Item {
     private final String id;
@@ -6,6 +6,7 @@ public class Item {
     private final ItemType type;
     private final int price;
     private final int value;
+    private final String description;
 
     public String getId() {
         return id;
@@ -27,11 +28,14 @@ public class Item {
         return value;
     }
 
-    public Item(String id, String name, ItemType type, int price, int value) {
+    public String getDescription() { return description; }
+
+    public Item(String id, String name, ItemType type, int price, int value, String description) {
         this.id = id;
         this.name = name;
         this.type = type;
         this.price = price;
         this.value = value;
+        this.description = description;
     }
 }
