@@ -13,10 +13,10 @@ public class Inventory {
         this.itemCatalog = itemCatalog;
     }
 
-    // --- PŘIDÁNÍ PŘEDMĚTU ---
+    // pridani predmetu
     public boolean addItem(String itemId, int count) {
         if (itemId == null || count <= 0 || !itemCatalog.hasItem(itemId)) {
-            return false; // Předmět neexistuje v katalogu nebo je neplatný počet
+            return false; // pokud predmet neexistuje vraci false
         }
 
         String key = itemId.toLowerCase();
@@ -24,7 +24,7 @@ public class Inventory {
         return true;
     }
 
-    // --- ODEBRÁNÍ PŘEDMĚTU ---
+    // odebrani predmetu
     public boolean removeItem(String itemId, int count) {
         if (itemId == null || count <= 0) return false;
 
@@ -32,23 +32,24 @@ public class Inventory {
         int currentCount = items.getOrDefault(key, 0);
 
         if (currentCount < count) {
-            return false; // Hráč nemá dostatek kusů
+            return false; // false pokud hrac nema dostatek
         }
 
         if (currentCount == count) {
-            items.remove(key); // Při spotřebování všech kusů klíč smažeme
+            items.remove(key); // pokud spotrebujeme vse, smazeme klic
         } else {
             items.put(key, currentCount - count);
         }
         return true;
     }
 
-    // --- KONTROLA A ZÍSKÁNÍ POČTU ---
+    // kontrola poctu predmetu
     public boolean hasItem(String itemId, int count) {
         if (itemId == null) return false;
         return items.getOrDefault(itemId.toLowerCase(), 0) >= count;
     }
 
+    // ziskani poctu predmetu
     public int getItemCount(String itemId) {
         if (itemId == null) return 0;
         return items.getOrDefault(itemId.toLowerCase(), 0);
@@ -58,7 +59,7 @@ public class Inventory {
         return Collections.unmodifiableMap(items);
     }
 
-    // --- VÝPIS PRO HRÁČE ---
+    // vypis pro hrace
     public String getFormattedInventory() {
         if (items.isEmpty()) {
             return "Inventář je prázdný.";
