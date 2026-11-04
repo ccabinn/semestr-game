@@ -1,5 +1,6 @@
-package assets;
+package loader;
 
+import assets.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
