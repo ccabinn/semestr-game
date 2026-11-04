@@ -14,8 +14,6 @@ public class Requirement {
 
     public List<String> getItemIds() { return itemIds; }
 
-    public String getItemId() { return itemIds.get(0); }
-
     public int getItemCount() {
         return itemCount;
     }
@@ -55,7 +53,15 @@ public class Requirement {
         throw new IllegalStateException("Požadavek není splněn: " + this);
     }
 
-
+    public String describe(ItemCatalog catalog) {
+        if (isMoney()) return itemCount + " Kč";
+        StringBuilder sb = new StringBuilder(itemCount + "× ");
+        for (int i = 0; i < itemIds.size(); i++) {
+            if (i > 0) sb.append(" nebo ");
+            sb.append(catalog.getName(itemIds.get(i)));
+        }
+        return sb.toString();
+    }
 
     @Override
     public String toString() {

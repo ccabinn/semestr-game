@@ -7,4 +7,5 @@ public interface GameContext {
     void removeItem(String itemId, int count);
     void addMoney(int amount);
     int getMoney();
+    default void onQuestEffect(QuestEffect effect) {}
 }

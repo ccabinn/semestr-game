@@ -1,0 +1,352 @@
+[
+    {
+        "id": "kolo",
+        "name": "Jízdní kolo",
+        "type": "VOZIDLO",
+        "price": 0,
+        "value": 0
+    },
+    {
+        "id": "auto",
+        "name": "Ojeté auto",
+        "type": "VOZIDLO",
+        "price": 150,
+        "value": 0
+    },
+    {
+        "id": "dodavka",
+        "name": "Dodávka",
+        "type": "VOZIDLO",
+        "price": 300,
+        "value": 0
+    },
+    {
+        "id": "seminko_obili",
+        "name": "Semínko obilí",
+        "type": "SEMINKO",
+        "price": 1,
+        "value": 0
+    },
+    {
+        "id": "seminko_salat",
+        "name": "Semínko salátu",
+        "type": "SEMINKO",
+        "price": 2,
+        "value": 0
+    },
+    {
+        "id": "seminko_cibule",
+        "name": "Semínko cibule",
+        "type": "SEMINKO",
+        "price": 2,
+        "value": 0
+    },
+    {
+        "id": "seminko_spenat",
+        "name": "Semínko špenátu",
+        "type": "SEMINKO",
+        "price": 2,
+        "value": 0
+    },
+    {
+        "id": "seminko_mrkev",
+        "name": "Semínko mrkve",
+        "type": "SEMINKO",
+        "price": 2,
+        "value": 0
+    },
+    {
+        "id": "seminko_brambory",
+        "name": "Semínko brambor",
+        "type": "SEMINKO",
+        "price": 3,
+        "value": 0
+    },
+    {
+        "id": "seminko_dyne",
+        "name": "Semínko dýně",
+        "type": "SEMINKO",
+        "price": 4,
+        "value": 0
+    },
+    {
+        "id": "seminko_cesnek",
+        "name": "Semínko česneku",
+        "type": "SEMINKO",
+        "price": 5,
+        "value": 0
+    },
+    {
+        "id": "seminko_jahody",
+        "name": "Semínka jahod",
+        "type": "SEMINKO",
+        "price": 5,
+        "value": 0
+    },
+    {
+        "id": "seminko_maliny",
+        "name": "Semínka malin",
+        "type": "SEMINKO",
+        "price": 5,
+        "value": 0
+    },
+    {
+        "id": "seminko_boruvky",
+        "name": "Semínka borůvek",
+        "type": "SEMINKO",
+        "price": 5,
+        "value": 0
+    },
+    {
+        "id": "seminko_jablka",
+        "name": "Semínka jablek",
+        "type": "SEMINKO",
+        "price": 6,
+        "value": 0
+    },
+    {
+        "id": "seminko_hrusky",
+        "name": "Semínka hrušek",
+        "type": "SEMINKO",
+        "price": 6,
+        "value": 0
+    },
+    {
+        "id": "seminko_merunky",
+        "name": "Semínka meruněk",
+        "type": "SEMINKO",
+        "price": 6,
+        "value": 0
+    },
+    {
+        "id": "seminko_broskve",
+        "name": "Semínka broskví",
+        "type": "SEMINKO",
+        "price": 7,
+        "value": 0
+    },
+    {
+        "id": "seminko_meloun",
+        "name": "Semínka melounu",
+        "type": "SEMINKO",
+        "price": 8,
+        "value": 0
+    },
+    {
+        "id": "obili",
+        "name": "Obilí",
+        "type": "PLODINA",
+        "price": 3,
+        "value": 0
+    },
+    {
+        "id": "salat",
+        "name": "Hlávkový salát",
+        "type": "PLODINA",
+        "price": 5,
+        "value": 0
+    },
+    {
+        "id": "cibule",
+        "name": "Cibule",
+        "type": "PLODINA",
+        "price": 6,
+        "value": 0
+    },
+    {
+        "id": "spenat",
+        "name": "Špenát",
+        "type": "PLODINA",
+        "price": 7,
+        "value": 0
+    },
+    {
+        "id": "mrkev",
+        "name": "Mrkev",
+        "type": "PLODINA",
+        "price": 7,
+        "value": 0
+    },
+    {
+        "id": "brambory",
+        "name": "Brambory",
+        "type": "PLODINA",
+        "price": 8,
+        "value": 0
+    },
+    {
+        "id": "dyne",
+        "name": "Dýně",
+        "type": "PLODINA",
+        "price": 12,
+        "value": 0
+    },
+    {
+        "id": "cesnek",
+        "name": "Česnek",
+        "type": "PLODINA",
+        "price": 14,
+        "value": 0
+    },
+    {
+        "id": "jahody",
+        "name": "Jahody",
+        "type": "PLODINA",
+        "price": 16,
+        "value": 0
+    },
+    {
+        "id": "maliny",
+        "name": "Maliny",
+        "type": "PLODINA",
+        "price": 16,
+        "value": 0
+    },
+    {
+        "id": "boruvky",
+        "name": "Borůvky",
+        "type": "PLODINA",
+        "price": 16,
+        "value": 0
+    },
+    {
+        "id": "jablka",
+        "name": "Jablka",
+        "type": "PLODINA",
+        "price": 17,
+        "value": 0
+    },
+    {
+        "id": "hrusky",
+        "name": "Hrušky",
+        "type": "PLODINA",
+        "price": 17,
+        "value": 0
+    },
+    {
+        "id": "merunky",
+        "name": "Meruňky",
+        "type": "PLODINA",
+        "price": 18,
+        "value": 0
+    },
+    {
+        "id": "broskve",
+        "name": "Broskve",
+        "type": "PLODINA",
+        "price": 20,
+        "value": 0
+    },
+    {
+        "id": "meloun",
+        "name": "Meloun",
+        "type": "PLODINA",
+        "price": 24,
+        "value": 0
+    },
+    {
+        "id": "chleb",
+        "name": "Chléb",
+        "type": "JIDLO",
+        "price": 8,
+        "value": 15
+    },
+    {
+        "id": "syr",
+        "name": "Sýr",
+        "type": "JIDLO",
+        "price": 14,
+        "value": 25
+    },
+    {
+        "id": "uzene_maso",
+        "name": "Uzené maso",
+        "type": "JIDLO",
+        "price": 22,
+        "value": 40
+    },
+    {
+        "id": "polevka",
+        "name": "Polévka",
+        "type": "JIDLO",
+        "price": 30,
+        "value": 55
+    },
+    {
+        "id": "kolac",
+        "name": "Koláč",
+        "type": "JIDLO",
+        "price": 40,
+        "value": 75
+    },
+    {
+        "id": "gulas",
+        "name": "Guláš",
+        "type": "JIDLO",
+        "price": 55,
+        "value": 100
+    },
+    {
+        "id": "pes",
+        "name": "Hlídací pes",
+        "type": "OBRANA_PASIVNI",
+        "price": 60,
+        "value": 15
+    },
+    {
+        "id": "krmeni",
+        "name": "Krmení pro psy",
+        "type": "KRMENI",
+        "price": 30,
+        "value": 5
+    },
+    {
+        "id": "plot",
+        "name": "Dřevěný plot",
+        "type": "OBRANA_PASIVNI",
+        "price": 80,
+        "value": 20
+    },
+    {
+        "id": "ohrada",
+        "name": "Elektrická ohrada",
+        "type": "OBRANA_PASIVNI",
+        "price": 180,
+        "value": 45
+    },
+    {
+        "id": "turret",
+        "name": "Automatická věž",
+        "type": "OBRANA_PASIVNI",
+        "price": 350,
+        "value": 80
+    },
+    {
+        "id": "puska",
+        "name": "Puška",
+        "type": "ZBRAN",
+        "price": 120,
+        "value": 35
+    },
+    {
+        "id": "brokovnice",
+        "name": "Brokovnice",
+        "type": "ZBRAN",
+        "price": 240,
+        "value": 70
+    },
+    {
+        "id": "kropitko",
+        "name": "Kropítko",
+        "type": "VYLEPSENI",
+        "price": 100,
+        "value": 1
+    },
+    {
+        "id": "studna",
+        "name": "Hlubší studna",
+        "type": "VYLEPSENI",
+        "price": 120,
+        "value": 1
+    }
+]
