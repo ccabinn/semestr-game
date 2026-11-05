@@ -1,0 +1,130 @@
+[
+  {
+    "id": "wheat",
+    "seedItemId": "seminko_obili",
+    "cropItemId": "obili",
+    "category": "VEGETABLE",
+    "growthDays": 2,
+    "wateringFrequency": "EVERY_OTHER_DAY"
+  },
+  {
+    "id": "lettuce",
+    "seedItemId": "seminko_salat",
+    "cropItemId": "salat",
+    "category": "VEGETABLE",
+    "growthDays": 3,
+    "wateringFrequency": "EVERY_OTHER_DAY"
+  },
+  {
+    "id": "onion",
+    "seedItemId": "seminko_cibule",
+    "cropItemId": "cibule",
+    "category": "VEGETABLE",
+    "growthDays": 5,
+    "wateringFrequency": "EVERY_OTHER_DAY"
+  },
+  {
+    "id": "spinach",
+    "seedItemId": "seminko_spenat",
+    "cropItemId": "spenat",
+    "category": "VEGETABLE",
+    "growthDays": 6,
+    "wateringFrequency": "EVERY_OTHER_DAY"
+  },
+  {
+    "id": "carrot",
+    "seedItemId": "seminko_mrkev",
+    "cropItemId": "mrkev",
+    "category": "VEGETABLE",
+    "growthDays": 6,
+    "wateringFrequency": "EVERY_OTHER_DAY"
+  },
+  {
+    "id": "potato",
+    "seedItemId": "seminko_brambory",
+    "cropItemId": "brambory",
+    "category": "VEGETABLE",
+    "growthDays": 8,
+    "wateringFrequency": "EVERY_OTHER_DAY"
+  },
+  {
+    "id": "pumpkin",
+    "seedItemId": "seminko_dyne",
+    "cropItemId": "dyne",
+    "category": "VEGETABLE",
+    "growthDays": 10,
+    "wateringFrequency": "EVERY_OTHER_DAY"
+  },
+  {
+    "id": "garlic",
+    "seedItemId": "seminko_cesnek",
+    "cropItemId": "cesnek",
+    "category": "VEGETABLE",
+    "growthDays": 10,
+    "wateringFrequency": "EVERY_OTHER_DAY"
+  },
+  {
+    "id": "strawberry",
+    "seedItemId": "seminko_jahody",
+    "cropItemId": "jahody",
+    "category": "FRUIT",
+    "growthDays": 2,
+    "wateringFrequency": "EVERY_DAY"
+  },
+  {
+    "id": "raspberry",
+    "seedItemId": "seminko_maliny",
+    "cropItemId": "maliny",
+    "category": "FRUIT",
+    "growthDays": 2,
+    "wateringFrequency": "EVERY_DAY"
+  },
+  {
+    "id": "blueberry",
+    "seedItemId": "seminko_boruvky",
+    "cropItemId": "boruvky",
+    "category": "FRUIT",
+    "growthDays": 2,
+    "wateringFrequency": "EVERY_DAY"
+  },
+  {
+    "id": "apple",
+    "seedItemId": "seminko_jablka",
+    "cropItemId": "jablka",
+    "category": "FRUIT",
+    "growthDays": 4,
+    "wateringFrequency": "EVERY_DAY"
+  },
+  {
+    "id": "pear",
+    "seedItemId": "seminko_hrusky",
+    "cropItemId": "hrusky",
+    "category": "FRUIT",
+    "growthDays": 4,
+    "wateringFrequency": "EVERY_DAY"
+  },
+  {
+    "id": "apricot",
+    "seedItemId": "seminko_merunky",
+    "cropItemId": "merunky",
+    "category": "FRUIT",
+    "growthDays": 6,
+    "wateringFrequency": "EVERY_DAY"
+  },
+  {
+    "id": "peach",
+    "seedItemId": "seminko_broskev",
+    "cropItemId": "broskev",
+    "category": "FRUIT",
+    "growthDays": 8,
+    "wateringFrequency": "EVERY_DAY"
+  },
+  {
+    "id": "watermelon",
+    "seedItemId": "seminko_meloun",
+    "cropItemId": "meloun",
+    "category": "FRUIT",
+    "growthDays": 10,
+    "wateringFrequency": "EVERY_DAY"
+  }
+]
