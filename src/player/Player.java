@@ -9,7 +9,7 @@ public class Player {
 
     private Location currentLocation;
     private int energy = 100;
-    private int money = 20; // Startovní peníze podle GDD
+    private int money = 20;
     private TransportType bestVehicle = TransportType.BIKE;
     private boolean hasEngineTuning = false;
     private final Inventory inventory;
@@ -19,7 +19,6 @@ public class Player {
         this.inventory = new Inventory(itemCatalog);
     }
 
-    // --- SPRÁVA ENERGIE (MAX 100) ---
     public void addEnergy(int amount) {
         if (amount > 0) {
             this.energy = Math.min(100, this.energy + amount);
@@ -48,7 +47,6 @@ public class Player {
         return false;
     }
 
-    // --- GETTERY A SETTERY ---
     public Location getCurrentLocation() {
         return currentLocation;
     }

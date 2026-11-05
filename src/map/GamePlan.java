@@ -1,78 +1,58 @@
 package map;
 
 import loader.MapLoader;
+import player.Player;
+
+import java.util.Collections;
 import java.util.Map;
 
 public class GamePlan {
 
-    // bude v playerovi
-    private Location currentLocation;
-    private Map<String, Location> allLocations;
-    private int energy = 100;
-    private TransportType bestVehicle = TransportType.BIKE;
-    private boolean hasEngineTuning = false;
+    private final Map<String, Location> allLocations;
 
     public GamePlan() {
-        allLocations = MapLoader.loadMapFromJSON("/data/locations.json");
-        currentLocation = allLocations.get("home");
+        this.allLocations = MapLoader.loadMapFromJSON("/data/locations.json");
     }
 
-    public String goToLocation(String destinationName) {
-        if (currentLocation == null) {
-            return "Chyba: Aktuální lokalita není nastavena.";
+    public String movePlayer(Player player, String destinationId) {
+        if (player == null || player.getCurrentLocation() == null) {
+            return "Chyba: Hráč nebo jeho aktuální pozice nebyla nalezena.";
         }
 
-        Passage passage = currentLocation.getPassage(destinationName);
+        Location currentLoc = player.getCurrentLocation();
+        Passage passage = currentLoc.getPassage(destinationId);
 
         if (passage == null) {
-            return "Do lokality se odtud nedostaneš!";
+            return "Tamtud se odsud jít nedá!";
         }
 
-        if (bestVehicle.getLevel() < passage.getRequiredTransport().getLevel()) {
+        // kontrola dopravniho prostredku
+        if (player.getBestVehicle().getLevel() < passage.getRequiredTransport().getLevel()) {
             return "Do lokality " + passage.getDestination().getName()
                     + " se s tvým dopravním prostředkem nedostaneš. Vyžaduje: "
                     + passage.getRequiredTransport().getDisplayName();
         }
 
-        int requiredEnergy = passage.getEnergyCost(bestVehicle, hasEngineTuning);
-        if (energy < requiredEnergy) {
-            return "Nemáš dostatek energie na cestu! Potřebuješ " + requiredEnergy + " EN, ale máš jen " + energy + " EN.";
+        // kontrola energie
+        int requiredEnergy = passage.getEnergyCost(player.getBestVehicle(), player.hasEngineTuning());
+        if (player.getEnergy() < requiredEnergy) {
+            return "Nemáš dostatek energie na cestu! Potřebuješ " + requiredEnergy + " EN, ale máš jen " + player.getEnergy() + " EN.";
         }
 
-        energy -= requiredEnergy;
-        currentLocation = passage.getDestination();
+        // pohyb a odecteni energie
+        player.removeEnergy(requiredEnergy);
+        player.setCurrentLocation(passage.getDestination());
 
-        return "Přesunul ses do: " + currentLocation.getName() + " (Spotřebováno " + requiredEnergy + " energie).";
+        return "Přesunul ses do: " + passage.getDestination().getName()
+                + " (Spotřebováno " + requiredEnergy + " energie).";
     }
 
-
-    // toto se hodi do playera
-
-    public Location getCurrentLocation() {
-        return currentLocation;
+    public Location getLocationById(String id) {
+        if (id == null) return null;
+        return allLocations.get(id.toLowerCase());
     }
 
-    public int getEnergy() {
-        return energy;
-    }
-
-    public void setEnergy(int energy) {
-        this.energy = Math.min(100, energy);
-    }
-
-    public TransportType getBestVehicle() {
-        return bestVehicle;
-    }
-
-    public void setBestVehicle(TransportType bestVehicle) {
-        this.bestVehicle = bestVehicle;
-    }
-
-    public boolean hasEngineTuning() {
-        return hasEngineTuning;
-    }
-
-    public void setHasEngineTuning(boolean hasEngineTuning) {
-        this.hasEngineTuning = hasEngineTuning;
+    public Map<String, Location> getAllLocations() {
+        return Collections.unmodifiableMap(allLocations);
     }
 }
