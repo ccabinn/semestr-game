@@ -47,7 +47,7 @@ public class MapLoader {
 
                 // nacteni lokalit
                 for (LocationDTO dto : dtos) {
-                    locationMap.put(dto.id, new Location(dto.name, dto.description));
+                    locationMap.put(dto.id, new Location(dto.id, dto.name, dto.description));
                 }
 
                 // nacteni passages

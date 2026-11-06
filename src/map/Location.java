@@ -4,11 +4,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Location {
+    private final String id;
     private final String name;
     private final String description;
     private final Map<String, Passage> passages = new HashMap<>();
 
-    public Location(String name, String description) {
+    public Location(String id, String name, String description) {
+        this.id = id;
         this.name = name;
         this.description = description;
     }
@@ -24,6 +26,8 @@ public class Location {
     public Map<String, Passage> getPassages() {
         return passages;
     }
+
+    public String getId() { return id; }
 
     public String getName() {
         return name;

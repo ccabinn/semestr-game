@@ -7,7 +7,8 @@ public enum ItemType {
     WEAPON("Zbraň"),
     DEFENSE_PASSIVE("Pasivní obrana"),
     DOG_FOOD("Krmení"),
-    UPGRADE("Vylepšení");
+    UPGRADE("Vylepšení"),
+    VEHICLE("Dopravní prostředek");
 
     private final String displayName;
 
