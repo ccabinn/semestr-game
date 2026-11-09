@@ -66,8 +66,7 @@ public class ShopManager {
 
         String currentLocationId = player.getCurrentLocation().getId().toLowerCase();
 
-        // prodavat lze pouze na trhu nebo ve meste
-        if (!currentLocationId.equals("local_market") && !currentLocationId.equals("city")) {
+        if (!currentLocationId.equals("local_market") && !currentLocationId.equals("city_market")) {
             return "Prodávat zboží můžeš pouze na Místním nebo Městském trhu!";
         }
 
@@ -75,15 +74,26 @@ public class ShopManager {
             return "Nemáš v inventáři " + count + "x " + item.getName() + "!";
         }
 
-        int totalPrice = item.getPrice() * count;
+        int unitPrice;
+
+        if (item.getType() == ItemType.CROP) {
+            // Plodiny: 100% základní cena na místním trhu, 200% (2x) na městském trhu
+            unitPrice = item.getPrice();
+            if (currentLocationId.equals("city_market")) {
+                unitPrice *= 2;
+            }
+        } else {
+            // Ostatní předměty (semínka, jídlo, zbraně...): výkup za 80 % nákupní ceny (bez městského násobku)
+            unitPrice = (int) Math.round(item.getPrice() * 0.8);
+        }
+
+        int totalPrice = unitPrice * count;
 
         player.getInventory().removeItem(item.getId(), count);
         player.addMoney(totalPrice);
 
-        return "Prodal jsi " + count + "x " + item.getName() + " za " + totalPrice + " Kč.";
+        return "Prodal jsi " + count + "x " + item.getName() + " za " + totalPrice + " Kč (" + unitPrice + " Kč/ks).";
     }
-
-
     public String getShopOffers(Player player) {
         String locId = player.getCurrentLocation().getId();
         List<Item> availableItems = new ArrayList<>(itemCatalog.getItemsForLocation(locId));

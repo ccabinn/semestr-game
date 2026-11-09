@@ -73,4 +73,8 @@ public class Inventory {
         }
         return sb.toString().trim();
     }
+
+    public ItemCatalog getItemCatalog() {
+        return itemCatalog;
+    }
 }

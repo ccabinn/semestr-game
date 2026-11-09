@@ -6,7 +6,10 @@
     "price": 1,
     "value": 0,
     "description": "Semínko obilí k zasazení na pole",
-    "availableLocations": ["local_market", "city"]
+    "availableLocations": [
+      "local_market",
+      "city_market"
+    ]
   },
   {
     "id": "obili",
@@ -15,7 +18,7 @@
     "price": 3,
     "value": 0,
     "description": "Čerstvě sklizené obilí",
-    "availableLocations": ["local_market", "city"]
+    "availableLocations": []
   },
   {
     "id": "seminko_salat",
@@ -24,7 +27,10 @@
     "price": 2,
     "value": 0,
     "description": "Semínko hlávkového salátu k zasazení na pole",
-    "availableLocations": ["local_market", "city"]
+    "availableLocations": [
+      "local_market",
+      "city_market"
+    ]
   },
   {
     "id": "salat",
@@ -33,259 +39,301 @@
     "price": 5,
     "value": 0,
     "description": "Čerstvě sklizený hlávkový salát",
-    "availableLocations": ["local_market", "city"]
+    "availableLocations": []
   },
   {
     "id": "seminko_cibule",
     "name": "Semínko cibule",
     "type": "SEED",
-    "price": 2,
+    "price": 3,
     "value": 0,
     "description": "Semínko cibule k zasazení na pole",
-    "availableLocations": ["local_market", "city"]
+    "availableLocations": [
+      "local_market",
+      "city_market"
+    ]
   },
   {
     "id": "cibule",
     "name": "Cibule",
     "type": "CROP",
-    "price": 6,
+    "price": 11,
     "value": 0,
     "description": "Čerstvě sklizená cibule",
-    "availableLocations": ["local_market", "city"]
+    "availableLocations": []
   },
   {
     "id": "seminko_spenat",
     "name": "Semínko špenátu",
     "type": "SEED",
-    "price": 2,
+    "price": 4,
     "value": 0,
     "description": "Semínko špenátu k zasazení na pole",
-    "availableLocations": ["local_market", "city"]
+    "availableLocations": [
+      "local_market",
+      "city_market"
+    ]
   },
   {
     "id": "spenat",
     "name": "Špenát",
     "type": "CROP",
-    "price": 7,
+    "price": 14,
     "value": 0,
     "description": "Čerstvě sklizený špenát",
-    "availableLocations": ["local_market", "city"]
+    "availableLocations": []
   },
   {
     "id": "seminko_mrkev",
     "name": "Semínko mrkve",
     "type": "SEED",
-    "price": 2,
+    "price": 5,
     "value": 0,
     "description": "Semínko mrkve k zasazení na pole",
-    "availableLocations": ["local_market", "city"]
+    "availableLocations": [
+      "local_market",
+      "city_market"
+    ]
   },
   {
     "id": "mrkev",
     "name": "Mrkev",
     "type": "CROP",
-    "price": 7,
+    "price": 23,
     "value": 0,
     "description": "Čerstvě sklizená mrkev",
-    "availableLocations": ["local_market", "city"]
+    "availableLocations": []
   },
   {
     "id": "seminko_brambory",
     "name": "Semínko brambor",
     "type": "SEED",
-    "price": 3,
+    "price": 7,
     "value": 0,
     "description": "Semínko brambor k zasazení na pole",
-    "availableLocations": ["local_market", "city"]
+    "availableLocations": [
+      "local_market",
+      "city_market"
+    ]
   },
   {
     "id": "brambory",
     "name": "Brambory",
     "type": "CROP",
-    "price": 8,
+    "price": 31,
     "value": 0,
     "description": "Čerstvě sklizené brambory",
-    "availableLocations": ["local_market", "city"]
+    "availableLocations": []
   },
   {
     "id": "seminko_dyne",
     "name": "Semínko dýně",
     "type": "SEED",
-    "price": 4,
+    "price": 10,
     "value": 0,
     "description": "Semínko dýně k zasazení na pole",
-    "availableLocations": ["local_market", "city"]
+    "availableLocations": [
+      "local_market",
+      "city_market"
+    ]
   },
   {
     "id": "dyne",
     "name": "Dýně",
     "type": "CROP",
-    "price": 12,
+    "price": 50,
     "value": 0,
     "description": "Čerstvě sklizená dýně",
-    "availableLocations": ["local_market", "city"]
+    "availableLocations": []
   },
   {
     "id": "seminko_cesnek",
     "name": "Semínko česneku",
     "type": "SEED",
-    "price": 5,
+    "price": 12,
     "value": 0,
     "description": "Semínko česneku k zasazení na pole",
-    "availableLocations": ["local_market", "city"]
+    "availableLocations": [
+      "local_market",
+      "city_market"
+    ]
   },
   {
     "id": "cesnek",
     "name": "Česnek",
     "type": "CROP",
-    "price": 14,
+    "price": 64,
     "value": 0,
     "description": "Čerstvě sklizený česnek",
-    "availableLocations": ["local_market", "city"]
+    "availableLocations": []
   },
   {
     "id": "seminko_jahody",
     "name": "Semínko jahod",
     "type": "SEED",
-    "price": 5,
+    "price": 15,
     "value": 0,
     "description": "Semínko jahod k zasazení na pole",
-    "availableLocations": ["local_market", "city"]
+    "availableLocations": [
+      "local_market",
+      "city_market"
+    ]
   },
   {
     "id": "jahody",
     "name": "Jahody",
     "type": "CROP",
-    "price": 16,
+    "price": 60,
     "value": 0,
     "description": "Čerstvě sklizené sladké jahody",
-    "availableLocations": ["local_market", "city"]
+    "availableLocations": []
   },
   {
     "id": "seminko_maliny",
     "name": "Semínko malin",
     "type": "SEED",
-    "price": 5,
+    "price": 18,
     "value": 0,
     "description": "Semínko malin k zasazení na pole",
-    "availableLocations": ["local_market", "city"]
+    "availableLocations": [
+      "local_market",
+      "city_market"
+    ]
   },
   {
     "id": "maliny",
     "name": "Maliny",
     "type": "CROP",
-    "price": 16,
+    "price": 72,
     "value": 0,
     "description": "Čerstvě sklizené maliny",
-    "availableLocations": ["local_market", "city"]
+    "availableLocations": []
   },
   {
     "id": "seminko_boruvky",
     "name": "Semínko borůvek",
     "type": "SEED",
-    "price": 5,
+    "price": 20,
     "value": 0,
     "description": "Semínko borůvek k zasazení na pole",
-    "availableLocations": ["local_market", "city"]
+    "availableLocations": [
+      "local_market",
+      "city_market"
+    ]
   },
   {
     "id": "boruvky",
     "name": "Borůvky",
     "type": "CROP",
-    "price": 16,
+    "price": 83,
     "value": 0,
     "description": "Čerstvě sklizené borůvky",
-    "availableLocations": ["local_market", "city"]
+    "availableLocations": []
   },
   {
     "id": "seminko_jablka",
     "name": "Semínko jablek",
     "type": "SEED",
-    "price": 6,
+    "price": 25,
     "value": 0,
     "description": "Semínko jablek k zasazení na pole",
-    "availableLocations": ["local_market", "city"]
+    "availableLocations": [
+      "local_market",
+      "city_market"
+    ]
   },
   {
     "id": "jablka",
     "name": "Jablka",
     "type": "CROP",
-    "price": 17,
+    "price": 121,
     "value": 0,
     "description": "Čerstvě sklizená jablka",
-    "availableLocations": ["local_market", "city"]
+    "availableLocations": []
   },
   {
     "id": "seminko_hrusky",
     "name": "Semínko hrušek",
     "type": "SEED",
-    "price": 6,
+    "price": 30,
     "value": 0,
     "description": "Semínko hrušek k zasazení na pole",
-    "availableLocations": ["local_market", "city"]
+    "availableLocations": [
+      "local_market",
+      "city_market"
+    ]
   },
   {
     "id": "hrusky",
     "name": "Hrušky",
     "type": "CROP",
-    "price": 17,
+    "price": 138,
     "value": 0,
     "description": "Čerstvě sklizené hrušky",
-    "availableLocations": ["local_market", "city"]
+    "availableLocations": []
   },
   {
     "id": "seminko_merunky",
     "name": "Semínko meruněk",
     "type": "SEED",
-    "price": 6,
+    "price": 35,
     "value": 0,
     "description": "Semínko meruněk k zasazení na pole",
-    "availableLocations": ["local_market", "city"]
+    "availableLocations": [
+      "local_market",
+      "city_market"
+    ]
   },
   {
     "id": "merunky",
     "name": "Meruňky",
     "type": "CROP",
-    "price": 18,
+    "price": 155,
     "value": 0,
     "description": "Čerstvě sklizené meruňky",
-    "availableLocations": ["local_market", "city"]
+    "availableLocations": []
   },
   {
     "id": "seminko_broskev",
     "name": "Semínko broskví",
     "type": "SEED",
-    "price": 7,
+    "price": 40,
     "value": 0,
     "description": "Semínko broskví k zasazení na pole",
-    "availableLocations": ["local_market", "city"]
+    "availableLocations": [
+      "local_market",
+      "city_market"
+    ]
   },
   {
     "id": "broskev",
     "name": "Broskve",
     "type": "CROP",
-    "price": 20,
+    "price": 215,
     "value": 0,
     "description": "Čerstvě sklizené broskve",
-    "availableLocations": ["local_market", "city"]
+    "availableLocations": []
   },
   {
     "id": "seminko_meloun",
     "name": "Semínko melounu",
     "type": "SEED",
-    "price": 8,
+    "price": 50,
     "value": 0,
     "description": "Semínko melounu k zasazení na pole",
-    "availableLocations": ["local_market", "city"]
+    "availableLocations": [
+      "local_market",
+      "city_market"
+    ]
   },
   {
     "id": "meloun",
     "name": "Meloun",
     "type": "CROP",
-    "price": 24,
+    "price": 275,
     "value": 0,
     "description": "Čerstvě sklizený geneticky čistý meloun",
-    "availableLocations": ["local_market", "city"]
+    "availableLocations": []
   },
   {
     "id": "chleb",
@@ -294,7 +342,10 @@
     "price": 8,
     "value": 15,
     "description": "Základní pečivo, doplní 15 energie",
-    "availableLocations": ["local_market", "city"]
+    "availableLocations": [
+      "local_market",
+      "city_market"
+    ]
   },
   {
     "id": "syr",
@@ -303,7 +354,10 @@
     "price": 14,
     "value": 25,
     "description": "Poctivý sýr, doplní 25 energie",
-    "availableLocations": ["local_market", "city"]
+    "availableLocations": [
+      "local_market",
+      "city_market"
+    ]
   },
   {
     "id": "uzene_maso",
@@ -312,7 +366,9 @@
     "price": 22,
     "value": 40,
     "description": "Vydatné uzené maso, doplní 40 energie",
-    "availableLocations": ["city"]
+    "availableLocations": [
+      "city_market"
+    ]
   },
   {
     "id": "polevka",
@@ -321,7 +377,9 @@
     "price": 30,
     "value": 55,
     "description": "Teplá městská polévka, doplní 55 energie",
-    "availableLocations": ["city"]
+    "availableLocations": [
+      "city_market"
+    ]
   },
   {
     "id": "kolac",
@@ -330,7 +388,9 @@
     "price": 40,
     "value": 75,
     "description": "Sladký koláč, doplní 75 energie",
-    "availableLocations": ["city"]
+    "availableLocations": [
+      "city_market"
+    ]
   },
   {
     "id": "gulas",
@@ -339,7 +399,9 @@
     "price": 55,
     "value": 100,
     "description": "Poctivý městský guláš, kompletně doplní 100 energie",
-    "availableLocations": ["city"]
+    "availableLocations": [
+      "city_market"
+    ]
   },
   {
     "id": "pes",
@@ -348,7 +410,10 @@
     "price": 60,
     "value": 15,
     "description": "Hlídací pes dodávající +15 pasivní obrany (pokud je nakrmený)",
-    "availableLocations": ["local_market", "city"]
+    "availableLocations": [
+      "local_market",
+      "city_market"
+    ]
   },
   {
     "id": "krmeni_psy",
@@ -357,7 +422,10 @@
     "price": 30,
     "value": 5,
     "description": "Nakrmí všechny hlídací psy na 5 dní",
-    "availableLocations": ["local_market", "city"]
+    "availableLocations": [
+      "local_market",
+      "city_market"
+    ]
   },
   {
     "id": "plot",
@@ -366,7 +434,10 @@
     "price": 80,
     "value": 20,
     "description": "Trvalý dřevěný plot odolný vůči záplavám (+20 pasivní obrany)",
-    "availableLocations": ["local_market", "city"]
+    "availableLocations": [
+      "local_market",
+      "army_shop"
+    ]
   },
   {
     "id": "elektricka_ohrada",
@@ -375,7 +446,9 @@
     "price": 180,
     "value": 45,
     "description": "Elektrická ohrada (+45 pasivní obrany). Může zkratovat při záplavách",
-    "availableLocations": ["city"]
+    "availableLocations": [
+      "army_shop"
+    ]
   },
   {
     "id": "turret",
@@ -384,7 +457,9 @@
     "price": 350,
     "value": 80,
     "description": "Automatická obranná věž (+80 pasivní obrany). Může zkratovat při záplavách",
-    "availableLocations": ["city"]
+    "availableLocations": [
+      "army_shop"
+    ]
   },
   {
     "id": "puska",
@@ -393,7 +468,9 @@
     "price": 120,
     "value": 35,
     "description": "Aktivní zbraň pro noční hlídku (+35 obrana, vyžaduje bdělost)",
-    "availableLocations": ["city"]
+    "availableLocations": [
+      "army_shop"
+    ]
   },
   {
     "id": "brokovnice",
@@ -402,7 +479,9 @@
     "price": 240,
     "value": 70,
     "description": "Silná aktivní zbraň pro noční hlídku (+70 obrana, vyžaduje bdělost)",
-    "availableLocations": ["city"]
+    "availableLocations": [
+      "army_shop"
+    ]
   },
   {
     "id": "kropitko",
@@ -411,7 +490,10 @@
     "price": 100,
     "value": 1,
     "description": "Snižuje spotřebu energie při obstarávání záhonků o 1 bod (max 4 ks)",
-    "availableLocations": ["local_market", "city"]
+    "availableLocations": [
+      "local_market",
+      "city_market"
+    ]
   },
   {
     "id": "hlubsi_studna",
@@ -420,7 +502,10 @@
     "price": 120,
     "value": 1,
     "description": "Prodlouží výdrž studny během sucha o +1 den za každou úroveň",
-    "availableLocations": ["local_market", "city"]
+    "availableLocations": [
+      "local_market",
+      "city_market"
+    ]
   },
   {
     "id": "auto",
@@ -429,7 +514,9 @@
     "price": 150,
     "value": 2,
     "description": "Ojeté auto, odemyká cestu do Města a zlevňuje cestování",
-    "availableLocations": ["city"]
+    "availableLocations": [
+      "autobazar"
+    ]
   },
   {
     "id": "dodavka",
@@ -438,6 +525,8 @@
     "price": 300,
     "value": 3,
     "description": "Prostorná dodávka, odemyká Městský trh a výrazně zlevňuje cestování",
-    "availableLocations": ["city"]
+    "availableLocations": [
+      "autobazar"
+    ]
   }
 ]
