@@ -1,5 +1,8 @@
 package inventory;
 
+import assets.NpcManager;
+import assets.QuestEffect;
+import map.TransportType;
 import player.Player;
 
 import java.text.Collator;
@@ -11,9 +14,28 @@ import java.util.Locale;
 public class ShopManager {
 
     private final ItemCatalog itemCatalog;
+    private final NpcManager npcManager; // kvuli slevam a odemceni z ukolu
 
-    public ShopManager(ItemCatalog itemCatalog) {
+    public ShopManager(ItemCatalog itemCatalog, NpcManager npcManager) {
         this.itemCatalog = itemCatalog;
+        this.npcManager = npcManager;
+    }
+
+    // cena po slevach z ukolu (Roman: dodavka, Kral: zbrane -20 %)
+    public int getPrice(Item item) {
+        if (item.getId().equals("dodavka") && npcManager.hasEffect(QuestEffect.SLEVA_DODAVKA)) {
+            return 220;
+        }
+        if (item.getType() == ItemType.WEAPON && npcManager.hasEffect(QuestEffect.SLEVA_ZBRANE_20)) {
+            return (int) Math.round(item.getPrice() * 0.8);
+        }
+        return item.getPrice();
+    }
+
+    // elektricka ohrada a turrety jdou koupit az po ukolu serzanta Krale
+    private boolean isLocked(Item item) {
+        boolean armyTech = item.getId().equals("elektricka_ohrada") || item.getId().equals("turret");
+        return armyTech && !npcManager.hasEffect(QuestEffect.ARMADNI_TECHNIKA);
     }
 
     // nakup predmetu
@@ -34,12 +56,21 @@ public class ShopManager {
             return "Předmět " + item.getName() + " se v lokalitě " + player.getCurrentLocation().getName() + " neprodává!";
         }
 
+        if (isLocked(item)) {
+            return "Seržant Král ti " + item.getName() + " zatím neprodá. Nejdřív mu pomoz (mluv kral).";
+        }
+
         // kontrola na ovocna seminka
         if (item.getType() == ItemType.SEED && isFruitSeed(item.getId()) && !player.canPlantFruit()) {
             return "Tato semínka zatím nemůžeš koupit! Musíš nejprve zasadit všech 8 druhů zeleniny.";
         }
 
-        int totalPrice = item.getPrice() * count;
+        // vozidlo se nedava do inventare, jen se nastavi jako nejlepsi dopravni prostredek
+        if (item.getType() == ItemType.VEHICLE) {
+            return buyVehicle(item, player);
+        }
+
+        int totalPrice = getPrice(item) * count;
 
         // kontrola penez
         if (player.getMoney() < totalPrice) {
@@ -51,6 +82,20 @@ public class ShopManager {
         player.getInventory().addItem(item.getId(), count);
 
         return "Koupil jsi " + count + "x " + item.getName() + " za " + totalPrice + " Kč.";
+    }
+
+    private String buyVehicle(Item item, Player player) {
+        TransportType vehicle = item.getId().equals("dodavka") ? TransportType.VAN : TransportType.CAR;
+        if (player.getBestVehicle().getLevel() >= vehicle.getLevel()) {
+            return "Už máš stejný nebo lepší dopravní prostředek (" + player.getBestVehicle().getDisplayName() + ").";
+        }
+        int price = getPrice(item);
+        if (player.getMoney() < price) {
+            return "Nemáš dostatek peněz! Potřebuješ " + price + " Kč, ale máš jen " + player.getMoney() + " Kč.";
+        }
+        player.removeMoney(price);
+        player.setBestVehicle(vehicle);
+        return "Koupil jsi " + item.getName() + " za " + price + " Kč. Nově cestuješ: " + vehicle.getDisplayName() + ".";
     }
 
     // prodej predmetu
@@ -121,7 +166,8 @@ public class ShopManager {
 
             sb.append("\n- ").append(item.getName())
                     .append(" [ID: ").append(item.getId()).append("]")
-                    .append(" - ").append(item.getPrice()).append(" Kč")
+                    .append(" - ").append(getPrice(item)).append(" Kč")
+                    .append(isLocked(item) ? " [ZAMČENO - úkol u Seržanta]" : "")
                     .append(" (").append(item.getDescription()).append(")");
         }
 

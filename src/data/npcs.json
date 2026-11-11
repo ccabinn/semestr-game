@@ -1,0 +1,232 @@
+[
+    {
+        "id": "jarda",
+        "name": "Trhovec Jarda",
+        "locationId": "local_market",
+        "greeting": "Vítej na trhu! Co pro tebe mám dneska za semínka?",
+        "quests": []
+    },
+    {
+        "id": "bohous",
+        "name": "Kutil Bohouš",
+        "locationId": "local_market",
+        "greeting": "Na kole se do Města nedostanu, ale dal bych si pořádnou Polévku nebo Koláč z Městského trhu. Když mi něco z toho přivezeš, vyrobím ti Kropítko na pole zdarma!",
+        "quests": [
+            {
+                "name": "Chuť velkoměsta",
+                "introDialog": "Hele, nedonesl bys mi něco teplýho k jídlu z Městskýho trhu? Dal bych si polívku nebo koláč. Odměním se ti!",
+                "notDoneDialog": "Furt čekám na tu baštu. Polévka nebo Koláč, pamatuj!",
+                "finalDialog": "Konečně teplý jídlo! Tady máš to slíbený Kropítko. A kdyby ti záplavy zničily elektriku na farmě, za padesát to opravím.",
+                "rewardMoney": 0,
+                "rewardItems": {
+                    "kropitko": 1
+                },
+                "requirements": [
+                    {
+                        "itemIds": [
+                            "polevka",
+                            "kolac"
+                        ],
+                        "itemCount": 1
+                    }
+                ],
+                "effects": [
+                    "BOHOUS_OPRAVY"
+                ]
+            }
+        ]
+    },
+    {
+        "id": "roman",
+        "name": "Mechanik Roman",
+        "locationId": "autobazar",
+        "greeting": "Potřebuješ káru nebo dodávku? Mám tu pěknou dodávku za 300.",
+        "quests": [
+            {
+                "name": "Podzimní sklizeň",
+                "introDialog": "Hele, sháním suroviny na domácí zavařování. Dones mi 2 dýně a slevím ti na tu dodávku.",
+                "notDoneDialog": "Dýně nikde? Tak to sleva nebude.",
+                "finalDialog": "Super, tyhle kousky se budou hodit. Dodávka je tvá za 220 a zdarma ti naladím motory, ať to míň žere.",
+                "rewardMoney": 0,
+                "rewardItems": {},
+                "requirements": [
+                    {
+                        "itemIds": [
+                            "dyne"
+                        ],
+                        "itemCount": 2
+                    }
+                ],
+                "effects": [
+                    "SLEVA_DODAVKA",
+                    "TUNING_MOTORU"
+                ]
+            }
+        ]
+    },
+    {
+        "id": "kral",
+        "name": "Seržant Král",
+        "locationId": "army_shop",
+        "greeting": "Vojákům došly čerstvé potraviny. Pokud mi nepřineseš zásoby, prodám ti jenom ploty a nějaký pušky.",
+        "quests": [
+            {
+                "name": "Čerstvé zásoby",
+                "introDialog": "Civilům armádní techniku nedávám. Ale jestli pro moje chlapy doneseš 3 mrkve, 3 špenáty a 2 chleby, zpřístupním ti lepší hračky a slevím zbraně.",
+                "notDoneDialog": "Bez mrkve a špenátu tě k těm turretům nepustím.",
+                "finalDialog": "Výborně, vojáci budou mít plný žaludky. Armádní hračky jsou tvoje a na pušky máš 20 procent slevu.",
+                "rewardMoney": 0,
+                "rewardItems": {},
+                "requirements": [
+                    {
+                        "itemIds": [
+                            "mrkev"
+                        ],
+                        "itemCount": 3
+                    },
+                    {
+                        "itemIds": [
+                            "spenat"
+                        ],
+                        "itemCount": 3
+                    },
+                    {
+                        "itemIds": [
+                            "chleb"
+                        ],
+                        "itemCount": 2
+                    }
+                ],
+                "effects": [
+                    "ARMADNI_TECHNIKA",
+                    "SLEVA_ZBRANE_20"
+                ]
+            }
+        ]
+    },
+    {
+        "id": "viktor",
+        "name": "Pašerák Viktor",
+        "locationId": "city",
+        "greeting": "Konvoj odjíždí brzy. Chceš jet taky? Bude tě to něco stát.",
+        "quests": [
+            {
+                "name": "Jízdenka do bezpečí",
+                "introDialog": "Beru tě, ale musíme mít zásoby. Dones tisícovku, 3 uzený, 3 guláše a 5 brambor. Pak jedeme.",
+                "notDoneDialog": "Máš to všechno? Prachy, uzený, guláš a brambory?",
+                "finalDialog": "Máš všechno. Naskoč, jedeme pryč z tohohle zapadákova!",
+                "rewardMoney": 0,
+                "rewardItems": {},
+                "requirements": [
+                    {
+                        "itemIds": [
+                            "penize"
+                        ],
+                        "itemCount": 1000
+                    },
+                    {
+                        "itemIds": [
+                            "uzene_maso"
+                        ],
+                        "itemCount": 3
+                    },
+                    {
+                        "itemIds": [
+                            "gulas"
+                        ],
+                        "itemCount": 3
+                    },
+                    {
+                        "itemIds": [
+                            "brambory"
+                        ],
+                        "itemCount": 5
+                    }
+                ],
+                "effects": [
+                    "KONEC_UNIK"
+                ]
+            }
+        ]
+    },
+    {
+        "id": "elena",
+        "name": "Doktorka Elena",
+        "locationId": "city_market",
+        "greeting": "Potřebuji materiály na výzkum vakcíny. Pomůžeš mi?",
+        "quests": [
+            {
+                "name": "Projekt Vakcína I",
+                "introDialog": "Na první fázi potřebuji 2 cibule a 2 česneky. Dones mi je.",
+                "notDoneDialog": "Bez cibule a česneku s první fází nehnu.",
+                "finalDialog": "Skvělé, tady je odměna. Můžeme přejít na druhou fázi.",
+                "rewardMoney": 50,
+                "rewardItems": {},
+                "requirements": [
+                    {
+                        "itemIds": [
+                            "cibule"
+                        ],
+                        "itemCount": 2
+                    },
+                    {
+                        "itemIds": [
+                            "cesnek"
+                        ],
+                        "itemCount": 2
+                    }
+                ],
+                "effects": []
+            },
+            {
+                "name": "Projekt Vakcína II",
+                "introDialog": "Teď potřebujeme silnější vzorky. Dones 2 jahody a 2 jablka.",
+                "notDoneDialog": "Stále čekám na ty jahody a jablka.",
+                "finalDialog": "Výborně! Jsme blízko. Tady jsou peníze na další výdaje.",
+                "rewardMoney": 100,
+                "rewardItems": {},
+                "requirements": [
+                    {
+                        "itemIds": [
+                            "jahody"
+                        ],
+                        "itemCount": 2
+                    },
+                    {
+                        "itemIds": [
+                            "jablka"
+                        ],
+                        "itemCount": 2
+                    }
+                ],
+                "effects": []
+            },
+            {
+                "name": "Projekt Vakcína III",
+                "introDialog": "Finální syntéza. Potřebuji geneticky čistý meloun.",
+                "notDoneDialog": "Máš ten meloun? Bez něj to nezvládneme.",
+                "finalDialog": "Máme to! Lék je hotový, zachránili jsme svět!",
+                "rewardMoney": 0,
+                "rewardItems": {},
+                "requirements": [
+                    {
+                        "itemIds": [
+                            "meloun"
+                        ],
+                        "itemCount": 1
+                    }
+                ],
+                "effects": [
+                    "KONEC_LEK"
+                ]
+            }
+        ]
+    },
+    {
+        "id": "obchodnik",
+        "name": "Městský obchodník",
+        "locationId": "city_market",
+        "greeting": "Tady vykupuju úrodu za dvojnásobek. Polévky, koláče, guláš i vylepšení farmy najdeš v nabídce.",
+        "quests": []
+    }
+]
