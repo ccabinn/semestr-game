@@ -367,7 +367,7 @@
     "value": 40,
     "description": "Vydatné uzené maso, doplní 40 energie",
     "availableLocations": [
-      "city_market"
+      "local_market"
     ]
   },
   {
@@ -411,8 +411,7 @@
     "value": 15,
     "description": "Hlídací pes dodávající +15 pasivní obrany (pokud je nakrmený)",
     "availableLocations": [
-      "local_market",
-      "city_market"
+      "local_market"
     ]
   },
   {
@@ -435,7 +434,6 @@
     "value": 20,
     "description": "Trvalý dřevěný plot odolný vůči záplavám (+20 pasivní obrany)",
     "availableLocations": [
-      "local_market",
       "army_shop"
     ]
   },
@@ -491,7 +489,6 @@
     "value": 1,
     "description": "Snižuje spotřebu energie při obstarávání záhonků o 1 bod (max 4 ks)",
     "availableLocations": [
-      "local_market",
       "city_market"
     ]
   },
@@ -503,7 +500,6 @@
     "value": 1,
     "description": "Prodlouží výdrž studny během sucha o +1 den za každou úroveň",
     "availableLocations": [
-      "local_market",
       "city_market"
     ]
   },
@@ -515,7 +511,7 @@
     "value": 2,
     "description": "Ojeté auto, odemyká cestu do Města a zlevňuje cestování",
     "availableLocations": [
-      "autobazar"
+      "local_market"
     ]
   },
   {

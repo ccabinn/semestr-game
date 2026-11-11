@@ -1,5 +1,8 @@
 package game;
 
+import assets.GameContext;
+import assets.NpcManager;
+import assets.QuestEffect;
 import farming.CropCatalog;
 import farming.FieldManager;
 import weather.WeatherManager;
@@ -10,12 +13,13 @@ import zombies.ZombieManager;
 import inventory.ItemCatalog;
 import inventory.ShopManager;
 import map.GamePlan;
+import loader.NpcLoader;
 import map.Location;
 import player.Player;
 
 import java.util.Map;
 
-public class GameManager {
+public class GameManager implements GameContext {
 
     private final GamePlan gamePlan;
     private final Player player;
@@ -27,6 +31,10 @@ public class GameManager {
     private final ZombieManager zombieManager;
     private final WeatherManager weatherManager;
     private DefenseStatus defenseStatus;
+    private final NpcManager npcManager;
+
+    // sem pise NpcManager pres print(), processCommand to pak vrati jako text
+    private final StringBuilder output = new StringBuilder();
 
     private int currentDay = 1;
     private boolean isGameOver = false;
@@ -39,11 +47,15 @@ public class GameManager {
         Location startLocation = gamePlan.getLocationById("home");
         this.player = new Player(startLocation, itemCatalog);
         this.fieldManager = new FieldManager(cropCatalog);
-        this.shopManager = new ShopManager(itemCatalog);
+        this.npcManager = NpcLoader.loadNpcsFromJSON("/data/npcs.json", itemCatalog);
+        this.shopManager = new ShopManager(itemCatalog, npcManager);
 
         this.zombieManager = new ZombieManager();
         this.weatherManager = new WeatherManager();
         this.defenseStatus = new DefenseStatus(0, 0, 0, 0, 0, false, false);
+
+        // startovni vybava podle GDD
+        player.getInventory().addItem("seminko_obili", 2);
     }
 
     // zpracovani prikazu
@@ -124,6 +136,17 @@ public class GameManager {
                 }
                 return advanceToNextDay();
 
+            case "mluv":
+            case "talk":
+                if (param1 == null) return "S kým chceš mluvit? Použití: mluv <npc>";
+                npcManager.talk(param1, this);
+                return flushOutput();
+
+            case "ukol":
+                if (param1 == null) return "Komu chceš odevzdat úkol? Použití: ukol <npc>";
+                npcManager.handIn(param1, this);
+                return flushOutput();
+
             case "napoveda":
             case "pomoc":
             case "help":
@@ -132,6 +155,72 @@ public class GameManager {
             default:
                 return "Neznámý příkaz '" + command + "'. Napiš 'napoveda' pro seznam příkazů.";
         }
+    }
+
+    // ===== GameContext - napojeni NPC a ukolu na hrace =====
+
+    @Override
+    public String getCurrentLocationId() { return player.getCurrentLocation().getId(); }
+
+    @Override
+    public void print(String text) { output.append(text).append("\n"); }
+
+    @Override
+    public int countItem(String itemId) { return player.getInventory().getItemCount(itemId); }
+
+    @Override
+    public void removeItem(String itemId, int count) { player.getInventory().removeItem(itemId, count); }
+
+    @Override
+    public void addItem(String itemId, int count) { player.getInventory().addItem(itemId, count); }
+
+    @Override
+    public void addMoney(int amount) { player.addMoney(amount); }
+
+    @Override
+    public void removeMoney(int amount) { player.removeMoney(amount); }
+
+    @Override
+    public int getMoney() { return player.getMoney(); }
+
+    // efekty, ktere meni stav hry hned. Slevy a odemceni v obchode
+    // si ShopManager zjistuje sam pres npcManager.hasEffect(...)
+    @Override
+    public void onQuestEffect(QuestEffect effect) {
+        switch (effect) {
+            case TUNING_MOTORU:
+                player.setHasEngineTuning(true);
+                print("Motor je seřízený: cesty do Města tě stojí o 5 energie méně.");
+                break;
+            case SLEVA_DODAVKA:
+                print("Dodávku teď v Autobazaru koupíš za 220 Kč.");
+                break;
+            case ARMADNI_TECHNIKA:
+                print("V Army shopu si teď můžeš koupit elektrickou ohradu a turrety.");
+                break;
+            case SLEVA_ZBRANE_20:
+                print("Zbraně v Army shopu máš o 20 % levnější.");
+                break;
+            case BOHOUS_OPRAVY:
+                // TODO: az budou zaplavy zkratovat ohradu/turrety, pridat prikaz na opravu za 50 Kc
+                print("Bohouš ti teď za 50 Kč opraví elektriku poničenou záplavami.");
+                break;
+            case KONEC_UNIK:
+                isGameOver = true;
+                print("*** VÍTĚZSTVÍ: Únik do bezpečí! Hra dokončena za " + currentDay + " dní. ***");
+                break;
+            case KONEC_LEK:
+                isGameOver = true;
+                print("*** VÍTĚZSTVÍ: Lék proti nákaze! Hra dokončena za " + currentDay + " dní. ***");
+                break;
+        }
+    }
+
+    // vrati vse, co se napsalo pres print(), a vycisti buffer
+    private String flushOutput() {
+        String text = output.toString().trim();
+        output.setLength(0);
+        return text;
     }
 
     // prechod na novy den
@@ -230,6 +319,8 @@ public class GameManager {
                 "- obstarej              : Zalití a obstarání záhonků na poli\n" +
                 "- sklid                 : Sklizeň dozrálých plodin na poli\n" +
                 "- spi                   : Spánek a posun do dalšího dne (pouze v Domě)\n" +
+                "- mluv <npc>            : Rozhovor s postavou (např. 'mluv bohous')\n" +
+                "- ukol <npc>            : Odevzdání úkolu postavě (např. 'ukol elena')\n" +
                 "- napoveda              : Vypíše tuto nápovědu";
     }
 
@@ -251,6 +342,7 @@ public class GameManager {
     public CropCatalog getCropCatalog() { return cropCatalog; }
     public ZombieManager getZombieManager() { return zombieManager; }
     public WeatherManager getWeatherManager() { return weatherManager; }
+    public NpcManager getNpcManager() { return npcManager; }
     public DefenseStatus getDefenseStatus() { return defenseStatus; }
     public int getCurrentDay() { return currentDay; }
     public boolean isGameOver() { return isGameOver; }
