@@ -2,14 +2,14 @@
     {
         "id": "jarda",
         "name": "Trhovec Jarda",
-        "locationId": "mistni_trh",
+        "locationId": "local_market",
         "greeting": "Vítej na trhu! Co pro tebe mám dneska za semínka?",
         "quests": []
     },
     {
         "id": "bohous",
         "name": "Kutil Bohouš",
-        "locationId": "mistni_trh",
+        "locationId": "local_market",
         "greeting": "Na kole se do Města nedostanu, ale dal bych si pořádnou Polévku nebo Koláč z Městského trhu. Když mi něco z toho přivezeš, vyrobím ti Kropítko na pole zdarma!",
         "quests": [
             {
@@ -18,6 +18,9 @@
                 "notDoneDialog": "Furt čekám na tu baštu. Polévka nebo Koláč, pamatuj!",
                 "finalDialog": "Konečně teplý jídlo! Tady máš to slíbený Kropítko. A kdyby ti záplavy zničily elektriku na farmě, za padesát to opravím.",
                 "rewardMoney": 0,
+                "rewardItems": {
+                    "kropitko": 1
+                },
                 "requirements": [
                     {
                         "itemIds": [
@@ -45,6 +48,7 @@
                 "notDoneDialog": "Dýně nikde? Tak to sleva nebude.",
                 "finalDialog": "Super, tyhle kousky se budou hodit. Dodávka je tvá za 220 a zdarma ti naladím motory, ať to míň žere.",
                 "rewardMoney": 0,
+                "rewardItems": {},
                 "requirements": [
                     {
                         "itemIds": [
@@ -72,6 +76,7 @@
                 "notDoneDialog": "Bez mrkve a špenátu tě k těm turretům nepustím.",
                 "finalDialog": "Výborně, vojáci budou mít plný žaludky. Armádní hračky jsou tvoje a na pušky máš 20 procent slevu.",
                 "rewardMoney": 0,
+                "rewardItems": {},
                 "requirements": [
                     {
                         "itemIds": [
@@ -102,7 +107,7 @@
     {
         "id": "viktor",
         "name": "Pašerák Viktor",
-        "locationId": "mesto",
+        "locationId": "city",
         "greeting": "Konvoj odjíždí brzy. Chceš jet taky? Bude tě to něco stát.",
         "quests": [
             {
@@ -111,6 +116,7 @@
                 "notDoneDialog": "Máš to všechno? Prachy, uzený, guláš a brambory?",
                 "finalDialog": "Máš všechno. Naskoč, jedeme pryč z tohohle zapadákova!",
                 "rewardMoney": 0,
+                "rewardItems": {},
                 "requirements": [
                     {
                         "itemIds": [
@@ -146,7 +152,7 @@
     {
         "id": "elena",
         "name": "Doktorka Elena",
-        "locationId": "mestsky_trh",
+        "locationId": "city_market",
         "greeting": "Potřebuji materiály na výzkum vakcíny. Pomůžeš mi?",
         "quests": [
             {
@@ -155,6 +161,7 @@
                 "notDoneDialog": "Bez cibule a česneku s první fází nehnu.",
                 "finalDialog": "Skvělé, tady je odměna. Můžeme přejít na druhou fázi.",
                 "rewardMoney": 50,
+                "rewardItems": {},
                 "requirements": [
                     {
                         "itemIds": [
@@ -177,6 +184,7 @@
                 "notDoneDialog": "Stále čekám na ty jahody a jablka.",
                 "finalDialog": "Výborně! Jsme blízko. Tady jsou peníze na další výdaje.",
                 "rewardMoney": 100,
+                "rewardItems": {},
                 "requirements": [
                     {
                         "itemIds": [
@@ -199,6 +207,7 @@
                 "notDoneDialog": "Máš ten meloun? Bez něj to nezvládneme.",
                 "finalDialog": "Máme to! Lék je hotový, zachránili jsme svět!",
                 "rewardMoney": 0,
+                "rewardItems": {},
                 "requirements": [
                     {
                         "itemIds": [
@@ -212,5 +221,12 @@
                 ]
             }
         ]
+    },
+    {
+        "id": "obchodnik",
+        "name": "Městský obchodník",
+        "locationId": "city_market",
+        "greeting": "Tady vykupuju úrodu za dvojnásobek. Polévky, koláče, guláš i vylepšení farmy najdeš v nabídce.",
+        "quests": []
     }
 ]
