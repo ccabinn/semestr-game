@@ -21,6 +21,59 @@ public class FieldManager {
         }
     }
 
+    // textovy prehled zahonu na poli
+    public String getFieldStatus(ItemCatalog itemCatalog, boolean isDrought) {
+        if (plots == null || plots.isEmpty()) {
+            return "Na poli nejsou žádné záhonky.";
+        }
+
+        StringBuilder sb = new StringBuilder("=== STAV ZÁHONKŮ NA POLI ===\n");
+        for (Plot plot : plots) {
+            sb.append("Záhonek č. ").append(plot.getIndex()).append(": ");
+
+            if (plot.isEmpty()) {
+                sb.append("Prázdný\n");
+            } else if (plot.isWithered()) {
+                String cropName = getCropDisplayName(plot.getCrop(), itemCatalog);
+                sb.append(cropName).append(" | USCHLO (nezalito včas)\n");
+            } else {
+                String cropName = getCropDisplayName(plot.getCrop(), itemCatalog);
+
+                // stav zalevani
+                String waterStatus;
+                if (plot.isWateredToday()) {
+                    waterStatus = "Zalito (dnes)";
+                } else if (plot.requiresWateringToday(isDrought)) {
+                    waterStatus = "NUTNO ZALÍT!";
+                } else {
+                    waterStatus = "V pořádku (stačí zítra)";
+                }
+
+                sb.append(cropName)
+                        .append(" | Zalévání: ").append(waterStatus)
+                        .append(" | Stav: ");
+
+                if (plot.isMature()) {
+                    sb.append("PŘIPRAVENO KE SKLIZNI!\n");
+                } else {
+                    int daysLeft = plot.getDaysUntilHarvest();
+                    sb.append("Zbývá ").append(daysLeft)
+                            .append(daysLeft == 1 ? " den" : (daysLeft >= 2 && daysLeft <= 4 ? " dny" : " dní")).append("\n");
+                }
+            }
+        }
+        return sb.toString().trim();
+    }
+
+    private String getCropDisplayName(Crop crop, ItemCatalog itemCatalog) {
+        if (crop == null) return "Neznámá plodina";
+        if (itemCatalog != null) {
+            Item item = itemCatalog.getItem(crop.getCropItemId());
+            if (item != null) return item.getName();
+        }
+        return crop.getId();
+    }
+
     public String plantCrop(String cropQuery, Player player, ItemCatalog itemCatalog) {
         Crop crop = cropCatalog.getCrop(cropQuery);
         if (crop == null) {

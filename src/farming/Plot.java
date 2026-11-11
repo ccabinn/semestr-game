@@ -54,6 +54,32 @@ public class Plot {
         return !isEmpty() && !isWithered && growthDaysCurrent >= crop.getGrowthDays();
     }
 
+    // true pokud ten den plodina nutne potrebuje zalet
+    public boolean requiresWateringToday(boolean isDrought) {
+        if (isEmpty() || isWithered || wateredToday) {
+            return false;
+        }
+        // sucho nebo denni zalevani potrebuje kazdy den
+        if (isDrought || crop.getWateringFrequency() == WateringFrequency.EVERY_DAY) {
+            return true;
+        }
+        // pri zalevani obden je voda potreba pokud vcera nebylo zalito
+        return !wateredYesterday;
+    }
+
+    public boolean isReadyToHarvest() {
+        return isMature();
+    }
+
+    public int getDaysUntilHarvest() {
+        if (crop == null || isWithered) return 0;
+        return Math.max(0, crop.getGrowthDays() - growthDaysCurrent);
+    }
+
+    public boolean isWatered() {
+        return wateredToday;
+    }
+
     public Crop harvest() {
         if (!isMature()) return null;
         Crop harvested = crop;

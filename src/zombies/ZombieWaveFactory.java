@@ -7,12 +7,12 @@ public class ZombieWaveFactory {
 
     public static List<Zombie> createWaveForDay(int day) {
         List<Zombie> wave = new ArrayList<>();
-        if (day < 5) {
+        if (day < 10) {
             return wave;
         }
 
 
-        int baseCount = 1 + (day / 2);
+        int baseCount = 1 + (day - 10 / 2);
 
         for (int i = 1; i <= baseCount; i++) {
             if (day >= 10 && i % 3 == 0) {

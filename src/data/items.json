@@ -515,7 +515,7 @@
     "value": 2,
     "description": "Ojeté auto, odemyká cestu do Města a zlevňuje cestování",
     "availableLocations": [
-      "autobazar"
+      "local_market"
     ]
   },
   {

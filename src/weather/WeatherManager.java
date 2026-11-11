@@ -7,6 +7,7 @@ public class WeatherManager {
     private int currentDisasterChance = 15; // pocatecni sance na pohromu
     private int cooldownDays = 0;       // pocet dni klidu po pohrome
     private final Random random = new Random();
+    private int wellLevel = 0;
 
     // posun na novy den
     public String advanceWeather(int currentDay) {
@@ -35,6 +36,20 @@ public class WeatherManager {
             currentDisasterChance = Math.min(90, currentDisasterChance + 10); // narust sance o 10%
             return "Počasí: " + WeatherType.NORMAL.getDescription();
         }
+    }
+
+    public void setCurrentWeather(WeatherType weatherType) {
+        if (weatherType != null) {
+            this.currentWeather = weatherType;
+        }
+    }
+
+    public void addWellLevel() {
+        this.wellLevel++;
+    }
+
+    public int getWellLevel() {
+        return wellLevel;
     }
 
     public WeatherType getCurrentWeather() {

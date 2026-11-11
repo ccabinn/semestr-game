@@ -77,13 +77,13 @@ public class ShopManager {
         int unitPrice;
 
         if (item.getType() == ItemType.CROP) {
-            // Plodiny: 100% základní cena na místním trhu, 200% (2x) na městském trhu
+            // plodiny 100% na local market, 200% na city market
             unitPrice = item.getPrice();
             if (currentLocationId.equals("city_market")) {
                 unitPrice *= 2;
             }
         } else {
-            // Ostatní předměty (semínka, jídlo, zbraně...): výkup za 80 % nákupní ceny (bez městského násobku)
+            // ostatni predmety vykup za 80%
             unitPrice = (int) Math.round(item.getPrice() * 0.8);
         }
 
