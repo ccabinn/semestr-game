@@ -83,10 +83,10 @@
       },
       {
         "targetId": "city_market",
-        "requiredTransport": "VAN",
-        "bikeEnergy": 999,
-        "carEnergy": 999,
-        "vanEnergy": 5
+        "requiredTransport": "FOOT",
+        "bikeEnergy": 0,
+        "carEnergy": 0,
+        "vanEnergy": 0
       }
     ]
   },
@@ -125,10 +125,10 @@
     "passages": [
       {
         "targetId": "city",
-        "requiredTransport": "VAN",
-        "bikeEnergy": 999,
-        "carEnergy": 999,
-        "vanEnergy": 5
+        "requiredTransport": "FOOT",
+        "bikeEnergy": 0,
+        "carEnergy": 0,
+        "vanEnergy": 0
       }
     ]
   }

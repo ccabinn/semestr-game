@@ -6,19 +6,25 @@ import assets.QuestEffect;
 import farming.CropCatalog;
 import farming.FieldManager;
 import inventory.Item;
+import inventory.ItemCatalog;
+import inventory.ItemType;
+import inventory.ShopManager;
+import loader.NpcLoader;
+import map.GamePlan;
+import map.Location;
+import map.TransportType;
+import player.Player;
 import weather.WeatherManager;
-
+import weather.WeatherType;
 import zombies.DefenseStatus;
 import zombies.NightRaidResult;
 import zombies.ZombieManager;
-import inventory.ItemCatalog;
-import inventory.ShopManager;
-import map.GamePlan;
-import loader.NpcLoader;
-import map.Location;
-import player.Player;
 
+import java.text.Collator;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class GameManager implements GameContext {
@@ -32,10 +38,10 @@ public class GameManager implements GameContext {
 
     private final ZombieManager zombieManager;
     private final WeatherManager weatherManager;
-    private DefenseStatus defenseStatus;
     private final NpcManager npcManager;
+    private DefenseStatus defenseStatus;
 
-    // sem pise NpcManager pres print(), processCommand to pak vrati jako text
+    // Buffer pro zachycení výstupu rozhovorů a úkolů z NpcManageru
     private final StringBuilder output = new StringBuilder();
 
     private int currentDay = 1;
@@ -56,11 +62,14 @@ public class GameManager implements GameContext {
         this.weatherManager = new WeatherManager();
         this.defenseStatus = new DefenseStatus(0, 0, 0, 0, 0, false, false);
 
-        // startovni vybava podle GDD
+        // Startovní výbava podle GDD
         player.getInventory().addItem("seminko_obili", 2);
     }
 
-    // zpracovani prikazu
+    // =========================================================
+    // SPRACOVÁNÍ PŘÍKAZŮ (MAIN ROUTING)
+    // =========================================================
+
     public String processCommand(String inputLine) {
         if (inputLine == null || inputLine.trim().isEmpty()) {
             return "Zadej platný příkaz. (Nápověda: 'help')";
@@ -71,191 +80,96 @@ public class GameManager implements GameContext {
         String param1 = parts.length > 1 ? parts[1].toLowerCase() : null;
         String param2 = parts.length > 2 ? parts[2].toLowerCase() : null;
 
-        switch (command) {
-            case "jdi":
-            case "go":
-            case "move":
-                if (param1 == null) return "Kam chceš jít? Použití: jdi <id_lokality>";
-                return gamePlan.movePlayer(player, param1);
+        return switch (command) {
+            // Základní pohyb a stav
+            case "jdi", "go", "move" -> (param1 == null) ? "Kam chceš jít? Použití: jdi <id_lokality>"
+                    : gamePlan.movePlayer(player, param1);
+            case "inventar", "inv" -> player.getInventory().getFormattedInventory();
+            case "stav", "status" -> getPlayerStatus();
+            case "napoveda", "pomoc", "help" -> getHelpText();
+            case "spi", "sleep" -> handleSleep();
 
-            case "inventar":
-            case "inv":
-                return player.getInventory().getFormattedInventory();
+            // Obchod
+            case "obchod", "nabidka" -> shopManager.getShopOffers(player);
+            case "kup", "buy" -> handleBuy(param1, param2);
+            case "prodej", "sell" -> handleSell(param1, param2);
 
-            case "stav":
-            case "status":
-                return getPlayerStatus();
+            // Farming
+            case "zasad", "plant", "obstarej", "zali", "water", "sklid", "harvest", "pole", "zahony", "fieldstatus" ->
+                    handleFarmingCommand(command, param1);
 
-            case "obchod":
-            case "nabidka":
-                return shopManager.getShopOffers(player);
+            // NPC & Úkoly
+            case "mluv", "talk", "ukol" -> handleNpcCommand(command, param1);
 
-            case "kup":
-            case "buy":
-                if (param1 == null) return "Co chceš koupit? Použití: kup <id_predmetu> [pocet]";
-                int buyCount = parseCount(param2);
-                String buyResult = shopManager.buyItem(param1, buyCount, player);
+            // Vývojářské příkazy (DevTools)
+            case "tp", "teleport", "give", "additem", "addmoney", "money", "addenergy", "energy",
+                 "setday", "setweather", "setvehicle", "growall", "dozraj", "raid", "zombieraid",
+                 "items", "predmety", "listitems", "devhelp", "dev", "cheats" -> handleDevCommand(command, param1, param2);
 
-                if (buyResult.startsWith("Koupil jsi")) {
-                    handlePostPurchaseEffects(param1, buyCount);
-                }
-
-                return buyResult;
-
-            case "prodej":
-            case "sell":
-                if (param1 == null) return "Co chceš prodat? Použití: prodej <id_predmetu> [pocet]";
-                int sellCount = parseCount(param2);
-                return shopManager.sellItem(param1, sellCount, player);
-
-            case "zasad":
-            case "plant":
-                if (param1 == null) return "Co chceš zasadit? Použití: zasad <id_plodiny/seminka>";
-                if (!player.getCurrentLocation().getId().equalsIgnoreCase("field")) {
-                    return "Sázet můžeš pouze na poli!";
-                }
-                return fieldManager.plantCrop(param1, player, itemCatalog);
-
-            case "obstarej":
-            case "zali":
-            case "water":
-                if (!player.getCurrentLocation().getId().equalsIgnoreCase("field")) {
-                    return "Obstarávat záhonky můžeš pouze na poli!";
-                }
-                return fieldManager.tendPlots(player, weatherManager.isDrought());
-
-            case "sklid":
-            case "harvest":
-                if (!player.getCurrentLocation().getId().equalsIgnoreCase("field")) {
-                    return "Sklízet úrodu můžeš pouze na poli!";
-                }
-                return fieldManager.harvestAll(player, itemCatalog);
-
-            case "spi":
-            case "sleep":
-                if (!player.getCurrentLocation().getId().equalsIgnoreCase("home")) {
-                    return "Vyspat se do nového dne můžeš pouze v Domě!";
-                }
-                return advanceToNextDay();
-
-            case "mluv":
-            case "talk":
-                if (param1 == null) return "S kým chceš mluvit? Použití: mluv <npc>";
-                npcManager.talk(param1, this);
-                return flushOutput();
-
-            case "ukol":
-                if (param1 == null) return "Komu chceš odevzdat úkol? Použití: ukol <npc>";
-                npcManager.handIn(param1, this);
-                return flushOutput();
-
-            case "napoveda":
-            case "pomoc":
-            case "help":
-                return getHelpText();
-
-            case "pole":
-            case "zahony":
-            case "fieldstatus":
-                if (!player.getCurrentLocation().getId().equalsIgnoreCase("field")) {
-                    return "Stav záhonků lze zobrazit pouze na poli!";
-                }
-                return fieldManager.getFieldStatus(itemCatalog, weatherManager.isDrought());
-
-            // DEVTOOLS (pouze pres konzoli)
-            case "tp":
-            case "teleport":
-                if (param1 == null) return "DEV: Zadej ID lokace (např. 'tp city_market', 'tp army_shop', 'tp home').";
-                Location targetLoc = gamePlan.getLocationById(param1);
-                if (targetLoc == null) return "DEV: Lokace s ID '" + param1 + "' neexistuje!";
-                player.setCurrentLocation(targetLoc);
-                return "DEV: Teleportován do lokace " + targetLoc.getName() + " (" + targetLoc.getId() + ").";
-
-            case "give":
-            case "additem":
-                if (param1 == null) return "DEV: Použití: give <id_itemu> [pocet]";
-                int giveCount = parseCount(param2);
-                if (itemCatalog.getItem(param1) == null) return "DEV: Předmět '" + param1 + "' neexistuje v katalogu!";
-                player.getInventory().addItem(param1, giveCount);
-                return "DEV: Přidáno " + giveCount + "x " + param1 + " do inventáře.";
-
-            case "addmoney":
-            case "money":
-                int moneyAmount = parseCount(param1);
-                player.addMoney(moneyAmount);
-                return "DEV: Přidáno " + moneyAmount + " Kč. Aktuální stav: " + player.getMoney() + " Kč.";
-
-            case "addenergy":
-            case "energy":
-                int energyAmount = parseCount(param1);
-                player.addEnergy(energyAmount);
-                return "DEV: Doplněno +" + energyAmount + " EN. Aktuální stav: " + player.getEnergy() + "/100 EN.";
-
-            case "setday":
-                if (param1 == null) return "DEV: Zadej číslo dne (např. 'setday 10').";
-                try {
-                    int targetDay = Integer.parseInt(param1);
-                    this.currentDay = Math.max(1, targetDay);
-                    return "DEV: Den nastaven na " + currentDay + ".";
-                } catch (NumberFormatException e) {
-                    return "DEV: Neplatné číslo dne!";
-                }
-
-            case "setweather":
-                if (param1 == null) return "DEV: Použití: setweather <fair|drought|flood>";
-                return devSetWeather(param1);
-
-            case "setvehicle":
-                if (param1 == null) return "DEV: Použití: setvehicle <bike|car|van>";
-                switch (param1) {
-                    case "bike": player.setBestVehicle(map.TransportType.BIKE); break;
-                    case "car": player.setBestVehicle(map.TransportType.CAR); break;
-                    case "van": player.setBestVehicle(map.TransportType.VAN); break;
-                    default: return "DEV: Neznámé vozidlo (možnosti: bike, car, van).";
-                }
-                return "DEV: Vozidlo změněno na " + player.getBestVehicle().getDisplayName() + ".";
-
-            case "growall":
-            case "dozraj":
-                for (farming.Plot plot : fieldManager.getPlots()) {
-                    if (!plot.isEmpty() && !plot.isWithered()) {
-                        // Posuneme růst přímo na potřebný počet dní pro danou plodinu
-                        int requiredDays = plot.getCrop().getGrowthDays();
-                        while (!plot.isMature()) {
-                            plot.advanceDay(false);
-                            // Pojistka, aby zalití neblokovalo růst při ručním posunu
-                            plot.water();
-                        }
-                    }
-                }
-                return "DEV: Všechny plodiny na poli okamžitě dozrály!";
-
-            case "devhelp":
-            case "dev":
-            case "cheats":
-                return getDevHelpText();
-
-            case "raid":
-            case "zombieraid":
-                syncDefenseStatusFromInventory();
-                zombies.NightRaidResult raidResult = zombieManager.resolveNightRaid(
-                        currentDay,
-                        defenseStatus,
-                        weatherManager.isFlooded()
-                );
-                return "DEV: Testovací raid spuštěn!\n" + raidResult.getSummaryLog();
-
-            case "items":
-            case "predmety":
-            case "listitems":
-                return devListItems();
-
-            default:
-                return "Neznámý příkaz '" + command + "'. Napiš 'napoveda' pro seznam příkazů.";
-        }
+            default -> "Neznámý příkaz '" + command + "'. Napiš 'napoveda' pro seznam příkazů.";
+        };
     }
 
-    // ===== GameContext - napojeni NPC a ukolu na hrace =====
+    // =========================================================
+    // HANDLERY JEDNOTLIVÝCH SEKCÍ PŘÍKAZŮ
+    // =========================================================
+
+    private String handleSleep() {
+        if (!player.getCurrentLocation().getId().equalsIgnoreCase("home")) {
+            return "Vyspat se do nového dne můžeš pouze v Domě!";
+        }
+        return advanceToNextDay();
+    }
+
+    private String handleBuy(String itemId, String countParam) {
+        if (itemId == null) return "Co chceš koupit? Použití: kup <id_predmetu> [pocet]";
+        int buyCount = parseCount(countParam);
+        String buyResult = shopManager.buyItem(itemId, buyCount, player);
+
+        if (buyResult.startsWith("Koupil jsi")) {
+            handlePostPurchaseEffects(itemId, buyCount);
+        }
+        return buyResult;
+    }
+
+    private String handleSell(String itemId, String countParam) {
+        if (itemId == null) return "Co chceš prodat? Použití: prodej <id_predmetu> [pocet]";
+        int sellCount = parseCount(countParam);
+        return shopManager.sellItem(itemId, sellCount, player);
+    }
+
+    private String handleFarmingCommand(String command, String param1) {
+        if (!player.getCurrentLocation().getId().equalsIgnoreCase("field")) {
+            return "Farmářské akce můžeš provádět pouze na poli!";
+        }
+
+        return switch (command) {
+            case "zasad", "plant" -> (param1 == null) ? "Co chceš zasadit? Použití: zasad <id_plodiny/seminka>"
+                    : fieldManager.plantCrop(param1, player, itemCatalog);
+            case "obstarej", "zali", "water" -> fieldManager.tendPlots(player, weatherManager.isDrought());
+            case "sklid", "harvest" -> fieldManager.harvestAll(player, itemCatalog);
+            case "pole", "zahony", "fieldstatus" -> fieldManager.getFieldStatus(itemCatalog, weatherManager.isDrought());
+            default -> "Neznámý farmářský příkaz.";
+        };
+    }
+
+    private String handleNpcCommand(String command, String npcId) {
+        if (npcId == null) {
+            return command.equals("ukol") ? "Komu chceš odevzdat úkol? Použití: ukol <npc>"
+                    : "S kým chceš mluvit? Použití: mluv <npc>";
+        }
+
+        if (command.equals("ukol")) {
+            npcManager.handIn(npcId, this);
+        } else {
+            npcManager.talk(npcId, this);
+        }
+        return flushOutput();
+    }
+
+    // =========================================================
+    // GAMECONTEXT INTERFACE (PROPOJENÍ S NPC A ÚKOLY)
+    // =========================================================
 
     @Override
     public String getCurrentLocationId() { return player.getCurrentLocation().getId(); }
@@ -281,61 +195,49 @@ public class GameManager implements GameContext {
     @Override
     public int getMoney() { return player.getMoney(); }
 
-    // efekty, ktere meni stav hry hned. Slevy a odemceni v obchode
-    // si ShopManager zjistuje sam pres npcManager.hasEffect(...)
     @Override
     public void onQuestEffect(QuestEffect effect) {
         switch (effect) {
-            case TUNING_MOTORU:
+            case TUNING_MOTORU -> {
                 player.setHasEngineTuning(true);
                 print("Motor je seřízený: cesty do Města tě stojí o 5 energie méně.");
-                break;
-            case SLEVA_DODAVKA:
-                print("Dodávku teď v Autobazaru koupíš za 220 Kč.");
-                break;
-            case ARMADNI_TECHNIKA:
-                print("V Army shopu si teď můžeš koupit elektrickou ohradu a turrety.");
-                break;
-            case SLEVA_ZBRANE_20:
-                print("Zbraně v Army shopu máš o 20 % levnější.");
-                break;
-            case BOHOUS_OPRAVY:
-                // TODO: az budou zaplavy zkratovat ohradu/turrety, pridat prikaz na opravu za 50 Kc
-                print("Bohouš ti teď za 50 Kč opraví elektriku poničenou záplavami.");
-                break;
-            case KONEC_UNIK:
+            }
+            case SLEVA_DODAVKA -> print("Dodávku teď v Autobazaru koupíš za 220 Kč.");
+            case ARMADNI_TECHNIKA -> print("V Army shopu si teď můžeš koupit elektrickou ohradu a turrety.");
+            case SLEVA_ZBRANE_20 -> print("Zbraně v Army shopu máš o 20 % levnější.");
+            case BOHOUS_OPRAVY -> print("Bohouš ti teď za 50 Kč opraví elektriku poničenou záplavami.");
+            case KONEC_UNIK -> {
                 isGameOver = true;
                 print("*** VÍTĚZSTVÍ: Únik do bezpečí! Hra dokončena za " + currentDay + " dní. ***");
-                break;
-            case KONEC_LEK:
+            }
+            case KONEC_LEK -> {
                 isGameOver = true;
                 print("*** VÍTĚZSTVÍ: Lék proti nákaze! Hra dokončena za " + currentDay + " dní. ***");
-                break;
+            }
         }
     }
 
-    // vrati vse, co se napsalo pres print(), a vycisti buffer
     private String flushOutput() {
         String text = output.toString().trim();
         output.setLength(0);
         return text;
     }
 
-    // prechod na novy den
+    // =========================================================
+    // LOGIKA PROCHÁZENÍ DNÍ & VEDLEJŠÍ EFEKTY NÁKUPU
+    // =========================================================
+
     public String advanceToNextDay() {
         StringBuilder sb = new StringBuilder();
 
-        // aktualizace obranneho stavu podle inventare hrace
         syncDefenseStatusFromInventory();
 
-        // vyhodnoceni nocniho najezdu zombies
         NightRaidResult raidResult = zombieManager.resolveNightRaid(
                 currentDay,
                 defenseStatus,
                 weatherManager.isFlooded()
         );
 
-        // doplneni energie
         if (raidResult.isAttackOccurred() && !raidResult.isDefenseSuccessful()) {
             sb.append(raidResult.getSummaryLog()).append("\n\n");
             sb.append("Z důvodu prolomení obrany se hráč v noci nemohl vyspat a NEDOPLNIL si energii!\n");
@@ -349,11 +251,9 @@ public class GameManager implements GameContext {
 
         currentDay++;
 
-        // posun rustu plodin na poli
         fieldManager.advanceDay(weatherManager.isDrought());
         sb.append("Plodiny na poli pokročily v růstu.\n\n");
 
-        // vyhodnoceni pocasi pro nasledujici den
         String weatherReport = weatherManager.advanceWeather(currentDay);
         sb.append("=== PROBUDIL SES DO DNE ").append(currentDay).append(" ===\n");
         sb.append(weatherReport);
@@ -361,51 +261,33 @@ public class GameManager implements GameContext {
         return sb.toString().trim();
     }
 
-    // zpracovava vedlejsi herni efekty zakoupenych predmetu
     private void handlePostPurchaseEffects(String itemId, int count) {
         String id = itemId.toLowerCase();
-
         switch (id) {
-            case "auto":
-            case "car":
-                if (player.getBestVehicle().getLevel() < map.TransportType.CAR.getLevel()) {
-                    player.setBestVehicle(map.TransportType.CAR);
+            case "auto", "car" -> {
+                if (player.getBestVehicle().getLevel() < TransportType.CAR.getLevel()) {
+                    player.setBestVehicle(TransportType.CAR);
                 }
-                break;
-
-            case "dodavka":
-            case "van":
-                if (player.getBestVehicle().getLevel() < map.TransportType.VAN.getLevel()) {
-                    player.setBestVehicle(map.TransportType.VAN);
+            }
+            case "dodavka", "van" -> {
+                if (player.getBestVehicle().getLevel() < TransportType.VAN.getLevel()) {
+                    player.setBestVehicle(TransportType.VAN);
                 }
-                break;
+            }
+            case "motorovy_tuning" -> player.setHasEngineTuning(true);
 
-            case "motorovy_tuning":
-                player.setHasEngineTuning(true);
-                break;
-
-            case "kropitko":
-                for (int i = 0; i < count; i++) {
-                    fieldManager.addSprinkler();
-                }
-                break;
-
-            case "hlubsi_studna":
-                for (int i = 0; i < count; i++) {
-                    weatherManager.addWellLevel();
-                }
-                break;
-
-            // Obrana a pes
-            case "krmeni_psy":
-                for (int i = 0; i < count; i++) {
-                    defenseStatus.feedDogs();
-                }
-                break;
+            case "kropitko" -> {
+                for (int i = 0; i < count; i++) fieldManager.addSprinkler();
+            }
+            case "hlubsi_studna" -> {
+                for (int i = 0; i < count; i++) weatherManager.addWellLevel();
+            }
+            case "krmeni_psy" -> {
+                for (int i = 0; i < count; i++) defenseStatus.feedDogs();
+            }
         }
     }
 
-    // vyhodnoceni obranneho stavu podle inventare
     private void syncDefenseStatusFromInventory() {
         Map<String, Integer> items = player.getInventory().getItems();
 
@@ -415,17 +297,10 @@ public class GameManager implements GameContext {
         int turrets = items.getOrDefault("turret", 0);
         boolean hasRifle = items.getOrDefault("puska", 0) > 0;
         boolean hasShotgun = items.getOrDefault("brokovnice", 0) > 0;
-
         int currentDogFoodDays = (defenseStatus != null) ? defenseStatus.getDogFoodDaysLeft() : 0;
 
         this.defenseStatus = new DefenseStatus(
-                dogs,
-                currentDogFoodDays,
-                woodenFences,
-                electricFences,
-                turrets,
-                hasRifle,
-                hasShotgun
+                dogs, currentDogFoodDays, woodenFences, electricFences, turrets, hasRifle, hasShotgun
         );
     }
 
@@ -447,6 +322,127 @@ public class GameManager implements GameContext {
                 player.hasEngineTuning() ? "ANO" : "NE",
                 player.getPlantedVegetablesCount()
         );
+    }
+
+    // devtools, pouze pres konzoli
+    private String handleDevCommand(String command, String param1, String param2) {
+        return switch (command) {
+            case "tp", "teleport" -> {
+                if (param1 == null) yield "DEV: Zadej ID lokace (např. 'tp city_market', 'tp home').";
+                Location targetLoc = gamePlan.getLocationById(param1);
+                if (targetLoc == null) yield "DEV: Lokace s ID '" + param1 + "' neexistuje!";
+                player.setCurrentLocation(targetLoc);
+                yield "DEV: Teleportován do lokace " + targetLoc.getName() + " (" + targetLoc.getId() + ").";
+            }
+            case "give", "additem" -> {
+                if (param1 == null) yield "DEV: Použití: give <id_itemu> [pocet]";
+                int giveCount = parseCount(param2);
+                if (itemCatalog.getItem(param1) == null) yield "DEV: Předmět '" + param1 + "' neexistuje v katalogu!";
+                player.getInventory().addItem(param1, giveCount);
+                yield "DEV: Přidáno " + giveCount + "x " + param1 + " do inventáře.";
+            }
+            case "addmoney", "money" -> {
+                int moneyAmount = parseCount(param1);
+                player.addMoney(moneyAmount);
+                yield "DEV: Přidáno " + moneyAmount + " Kč. Aktuální stav: " + player.getMoney() + " Kč.";
+            }
+            case "addenergy", "energy" -> {
+                int energyAmount = parseCount(param1);
+                player.addEnergy(energyAmount);
+                yield "DEV: Doplněno +" + energyAmount + " EN. Aktuální stav: " + player.getEnergy() + "/100 EN.";
+            }
+            case "setday" -> {
+                if (param1 == null) yield "DEV: Zadej číslo dne (např. 'setday 10').";
+                try {
+                    int targetDay = Integer.parseInt(param1);
+                    this.currentDay = Math.max(1, targetDay);
+                    yield "DEV: Den nastaven na " + currentDay + ".";
+                } catch (NumberFormatException e) {
+                    yield "DEV: Neplatné číslo dne!";
+                }
+            }
+            case "setweather" -> devSetWeather(param1);
+            case "setvehicle" -> {
+                if (param1 == null) yield "DEV: Použití: setvehicle <bike|car|van>";
+                switch (param1) {
+                    case "bike" -> player.setBestVehicle(TransportType.BIKE);
+                    case "car" -> player.setBestVehicle(TransportType.CAR);
+                    case "van" -> player.setBestVehicle(TransportType.VAN);
+                    default -> { yield "DEV: Neznámé vozidlo (možnosti: bike, car, van)."; }
+                }
+                yield "DEV: Vozidlo změněno na " + player.getBestVehicle().getDisplayName() + ".";
+            }
+            case "growall", "dozraj" -> {
+                for (farming.Plot plot : fieldManager.getPlots()) {
+                    if (!plot.isEmpty() && !plot.isWithered()) {
+                        while (!plot.isMature()) {
+                            plot.advanceDay(false);
+                            plot.water();
+                        }
+                    }
+                }
+                yield "DEV: Všechny plodiny na poli okamžitě dozrály!";
+            }
+            case "raid", "zombieraid" -> {
+                syncDefenseStatusFromInventory();
+                NightRaidResult raidResult = zombieManager.resolveNightRaid(
+                        currentDay, defenseStatus, weatherManager.isFlooded()
+                );
+                yield "DEV: Testovací raid spuštěn!\n" + raidResult.getSummaryLog();
+            }
+            case "items", "predmety", "listitems" -> devListItems();
+            case "devhelp", "dev", "cheats" -> getDevHelpText();
+            default -> "DEV: Neznámý příkaz.";
+        };
+    }
+
+    private String devSetWeather(String type) {
+        if (type == null) return "DEV: Použití: setweather <slunecno|sucho|zaplava>";
+
+        switch (type.toLowerCase()) {
+            case "fair", "slunecno", "normal" -> {
+                weatherManager.setCurrentWeather(WeatherType.NORMAL);
+                return "DEV: Počasí ručně změněno na Slunečno.";
+            }
+            case "drought", "sucho" -> {
+                weatherManager.setCurrentWeather(WeatherType.DROUGHT);
+                return "DEV: Počasí ručně změněno na Sucho.";
+            }
+            case "flood", "zaplava" -> {
+                weatherManager.setCurrentWeather(WeatherType.FLOOD);
+                return "DEV: Počasí ručně změněno na Záplavu.";
+            }
+            default -> {
+                return "DEV: Neznámý typ počasí! Možnosti: normal/slunecno, drought/sucho, flood/zaplava.";
+            }
+        }
+    }
+
+    private String devListItems() {
+        List<Item> allItems = new ArrayList<>(itemCatalog.getCatalog().values());
+        if (allItems.isEmpty()) {
+            return "DEV: Katalog předmětů je prázdný.";
+        }
+
+        Collator czechCollator = Collator.getInstance(new Locale("cs", "CZ"));
+        allItems.sort(Comparator
+                .comparing(Item::getType)
+                .thenComparing((a, b) -> czechCollator.compare(a.getName(), b.getName()))
+        );
+
+        StringBuilder sb = new StringBuilder("=== DEV: VŠECHNY PŘEDMĚTY V KATALOGU ===");
+        ItemType lastType = null;
+
+        for (Item item : allItems) {
+            if (item.getType() != lastType) {
+                lastType = item.getType();
+                sb.append("\n\n--- ").append(lastType.getDisplayName().toUpperCase()).append(" ---");
+            }
+            sb.append(String.format("\n- ID: %-20s | %-22s | Cena: %d Kč",
+                    item.getId(), item.getName(), item.getPrice()));
+        }
+
+        return sb.toString();
     }
 
     private String getHelpText() {
@@ -473,7 +469,7 @@ public class GameManager implements GameContext {
                 "- money / addmoney <castka>          : Přidá peníze hráči (např. 'money 5000')\n" +
                 "- energy / addenergy <castka>        : Doplní energii (např. 'energy 50')\n" +
                 "- setday <cislo_dne>                 : Posune hru na konkrétní den (např. 'setday 10')\n" +
-                "- setweather <slunecno|sucho|zaplava>: Změní počasí (fair, drought, flood)\n" +
+                "- setweather <slunecno|sucho|zaplava>: Změní počasí (normal, drought, flood)\n" +
                 "- setvehicle <bike|car|van>           : Změní nejlepší vozidlo hráče\n" +
                 "- growall / dozraj                   : Okamžitě nechá dozrát všechny plodiny na poli\n" +
                 "- raid / zombieraid                  : Okamžitě vyvolá noční přepad zombíků\n" +
@@ -491,58 +487,7 @@ public class GameManager implements GameContext {
         }
     }
 
-    private String devSetWeather(String type) {
-        if (type == null) return "DEV: Použití: setweather <fair|drought|flood>";
-
-        switch (type.toLowerCase()) {
-            case "fair":
-            case "slunecno":
-            case "normal":
-                weatherManager.setCurrentWeather(weather.WeatherType.NORMAL);
-                return "DEV: Počasí ručně změněno na Slunečno.";
-
-            case "drought":
-            case "sucho":
-                weatherManager.setCurrentWeather(weather.WeatherType.DROUGHT);
-                return "DEV: Počasí ručně změněno na Sucho.";
-
-            case "flood":
-            case "zaplava":
-                weatherManager.setCurrentWeather(weather.WeatherType.FLOOD);
-                return "DEV: Počasí ručně změněno na Záplavu.";
-
-            default:
-                return "DEV: Neznámý typ počasí! Možnosti: normal/slunecno, drought/sucho, flood/zaplava.";
-        }
-    }
-
-    private String devListItems() {
-        List<Item> allItems = new java.util.ArrayList<>(itemCatalog.getCatalog().values());
-        if (allItems.isEmpty()) {
-            return "DEV: Katalog předmětů je prázdný.";
-        }
-
-        java.text.Collator czechCollator = java.text.Collator.getInstance(java.util.Locale.of("cs", "CZ"));
-        allItems.sort(java.util.Comparator
-                .comparing(inventory.Item::getType)
-                .thenComparing((a, b) -> czechCollator.compare(a.getName(), b.getName()))
-        );
-
-        StringBuilder sb = new StringBuilder("=== DEV: VŠECHNY PŘEDMĚTY V KATALOGU ===");
-        inventory.ItemType lastType = null;
-
-        for (inventory.Item item : allItems) {
-            if (item.getType() != lastType) {
-                lastType = item.getType();
-                sb.append("\n\n--- ").append(lastType.getDisplayName().toUpperCase()).append(" ---");
-            }
-            sb.append(String.format("\n- ID: %-20s | %-22s | Cena: %d Kč",
-                    item.getId(), item.getName(), item.getPrice()));
-        }
-
-        return sb.toString();
-    }
-
+    // gettery
     public Player getPlayer() { return player; }
     public GamePlan getGamePlan() { return gamePlan; }
     public FieldManager getFieldManager() { return fieldManager; }

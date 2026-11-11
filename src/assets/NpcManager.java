@@ -108,6 +108,18 @@ public class NpcManager {
         return npc;
     }
 
+    public Map<String, Npc> getNpcsInLocation(String locationId) {
+        Map<String, Npc> result = new HashMap<>();
+        if (locationId == null) return result;
+
+        for (Map.Entry<String, Npc> entry : npcs.entrySet()) {
+            if (locationId.equalsIgnoreCase(entry.getValue().getLocationId())) {
+                result.put(entry.getKey(), entry.getValue());
+            }
+        }
+        return result;
+    }
+
     // ma hrac odemceny dany efekt? (= je hotovy ukol, ktery ho dava)
     // stav se pocita z ukolu, takze po nacteni hry (loadStates) sedi automaticky
     public boolean hasEffect(QuestEffect effect) {

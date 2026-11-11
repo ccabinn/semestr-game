@@ -1,21 +1,15 @@
 import game.GameManager;
+import gui.GameWindow;
 
-import java.util.Scanner;
+import javax.swing.SwingUtilities;
 
-// Hlavni smycka hry: cte prikazy z konzole a posila je do GameManageru.
-void main() {
-    GameManager game = new GameManager();
-    Scanner scanner = new Scanner(System.in);
+public class Main {
+    public static void main(String[] args) {
+        GameManager gameManager = new GameManager();
 
-    System.out.println("=== FARMA NA KONCI SVĚTA ===");
-    System.out.println(game.processCommand("stav"));
-
-    while (!game.isGameOver()) {
-        System.out.print("\n> ");
-        if (!scanner.hasNextLine()) break;
-        String line = scanner.nextLine();
-        if (line.trim().equalsIgnoreCase("konec")) break;
-        System.out.println(game.processCommand(line));
+        SwingUtilities.invokeLater(() -> {
+            GameWindow window = new GameWindow(gameManager);
+            window.setVisible(true);
+        });
     }
-    System.out.println("Konec hry.");
 }
