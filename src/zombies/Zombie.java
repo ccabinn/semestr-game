@@ -1,4 +1,4 @@
-package game.zombies;
+package zombies;
 
 public class Zombie {
     private final String name;

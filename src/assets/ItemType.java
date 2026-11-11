@@ -1,5 +1,0 @@
-package assets;
-
-public enum ItemType {
-    JIDLO, VOZIDLO, OBRANA_PASIVNI, ZBRAN, VYLEPSENI, KRMENI, SEMINKO, PLODINA
-}

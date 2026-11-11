@@ -1,4 +1,4 @@
-package game.zombies;
+package zombies;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,7 +7,7 @@ public class ZombieWaveFactory {
 
     public static List<Zombie> createWaveForDay(int day) {
         List<Zombie> wave = new ArrayList<>();
-        if (day < 1) {
+        if (day < 5) {
             return wave;
         }
 

@@ -1,4 +1,4 @@
-package game.zombies;
+package zombies;
 
 public class NightRaidResult {
     private final boolean attackOccurred;

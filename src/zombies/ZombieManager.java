@@ -1,10 +1,10 @@
-package game.zombies;
+package zombies;
 
 import java.util.List;
 
 public class ZombieManager {
 
-    public NightRaidResult resolveNightRaid(int day, DefenseStatus defense) {
+    public NightRaidResult resolveNightRaid(int day, DefenseStatus defense, boolean isFlooded) {
         List<Zombie> wave = ZombieWaveFactory.createWaveForDay(day);
         StringBuilder log = new StringBuilder();
 
@@ -15,17 +15,21 @@ public class ZombieManager {
         log.append("=== NOČNÍ NÁJEZD ZOMBIES (Den ").append(day).append(") ===\n");
         log.append("Kolem pole se shromáždilo ").append(wave.size()).append(" zombíků!\n");
 
+        if (isFlooded && (defense.getElectricFences() > 0 || defense.getTurrets() > 0)) {
+            log.append("UPOZORNĚNÍ: Záplava zkratovala elektrická obranná zařízení (ohrada a věže jsou nefunkční)!\n");
+        }
+
         if (defense.getGuardDogs() > 0 && defense.getDogFoodDaysLeft() == 0) {
             log.append("UPOZORNĚNÍ: Hlídací psi mají hlad (došlo krmení) a nebrání pole!\n");
         }
 
-        int totalKills = 0;
-
-
-        int attackPool = defense.getTurretDamage()
+        // Výpočet poškození obrany (při záplavě věže nevystřelí)
+        int turretDmg = isFlooded ? 0 : defense.getTurretDamage();
+        int attackPool = turretDmg
                 + defense.getPlayerWeaponDamage()
                 + defense.getEffectiveDogDamage();
 
+        int totalKills = 0;
         for (Zombie zombie : wave) {
             if (attackPool <= 0) break;
 
@@ -39,7 +43,6 @@ public class ZombieManager {
             }
         }
 
-
         int incomingDamage = 0;
         int survivors = 0;
         for (Zombie zombie : wave) {
@@ -49,8 +52,11 @@ public class ZombieManager {
             }
         }
 
+        // vypocet absorpce plotu
+        int electricFenceAbs = isFlooded ? 0 : (defense.getElectricFences() * 35);
+        int fenceAbsorption = (defense.getWoodenFences() * 15) + electricFenceAbs;
 
-        int absorbedByFences = Math.min(incomingDamage, defense.getFenceDefenseAbsorption());
+        int absorbedByFences = Math.min(incomingDamage, fenceAbsorption);
         int breachDamage = incomingDamage - absorbedByFences;
 
         defense.advanceDay();
