@@ -42,14 +42,12 @@ public class ZombieManager {
             }
         }
 
-        int incomingDamage = 0;
-        int survivors = 0;
-        for (Zombie zombie : wave) {
-            if (zombie.isAlive()) {
-                incomingDamage += zombie.getAttackPower();
-                survivors++;
-            }
-        }
+        // Stream API: jen prezivsi zombici -> soucet jejich utoku a jejich pocet
+        int incomingDamage = wave.stream()
+                .filter(Zombie::isAlive)
+                .mapToInt(Zombie::getAttackPower)
+                .sum();
+        long survivors = wave.stream().filter(Zombie::isAlive).count();
 
         // vypocet absorpce plotu
         int fenceAbsorption = defense.getFenceAbsorption(isFlooded);
