@@ -477,6 +477,8 @@ public class GameManager implements GameContext {
 
     // prochazeni dni
     public String advanceToNextDay() {
+        syncDefenseStatusFromInventory();
+
         StringBuilder sb = new StringBuilder();
 
         NightRaidResult raidResult = zombieManager.resolveNightRaid(
