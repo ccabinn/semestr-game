@@ -18,16 +18,10 @@ public class Requirement {
         this.itemCount = itemCount;
     }
 
-    public Requirement(String itemId, int itemCount) {
-        this(List.of(itemId), itemCount);
-    }
-
     public boolean isMoney() {
         return itemIds.size() == 1 && itemIds.get(0).equals(MONEY);
     }
 
-    public List<String> getItemIds() { return itemIds; }
-    public int getItemCount() { return itemCount; }
 
     // ma hrac dost penez / aspon jeden z predmetu v potrebnem poctu?
     public boolean isMetBy(GameContext ctx) {

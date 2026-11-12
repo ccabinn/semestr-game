@@ -2,7 +2,6 @@ package inventory;
 
 import loader.ItemLoader;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -30,13 +29,10 @@ public class ItemCatalog {
         if (locationId == null) return Collections.emptyList();
         String locKey = locationId.toLowerCase();
 
-        List<Item> result = new ArrayList<>();
-        for (Item item : catalog.values()) {
-            if (item.getAvailableLocations().contains(locKey)) {
-                result.add(item);
-            }
-        }
-        return Collections.unmodifiableList(result);
+        // Stream API: vsechny predmety -> jen ty, ktere se prodavaji v teto lokalite
+        return catalog.values().stream()
+                .filter(item -> item.getAvailableLocations().contains(locKey))
+                .toList(); // toList() vraci neupravitelny seznam
     }
 
     public Map<String, Item> getCatalog() {

@@ -19,13 +19,12 @@ public class ZombieManager {
             log.append("UPOZORNĚNÍ: Záplava zkratovala elektrická obranná zařízení (ohrada a věže jsou nefunkční)!\n");
         }
 
-        if (defense.getGuardDogs() > 0 && defense.getDogFoodDaysLeft() == 0) {
+        if (defense.getGuardDogs() > 0 && !defense.areDogsFed()) {
             log.append("UPOZORNĚNÍ: Hlídací psi mají hlad (došlo krmení) a nebrání pole!\n");
         }
 
         // Výpočet poškození obrany (při záplavě věže nevystřelí)
-        int turretDmg = isFlooded ? 0 : defense.getTurretDamage();
-        int attackPool = turretDmg
+        int attackPool = defense.getTurretDamage(isFlooded)
                 + defense.getPlayerWeaponDamage()
                 + defense.getEffectiveDogDamage();
 
@@ -43,23 +42,19 @@ public class ZombieManager {
             }
         }
 
-        int incomingDamage = 0;
-        int survivors = 0;
-        for (Zombie zombie : wave) {
-            if (zombie.isAlive()) {
-                incomingDamage += zombie.getAttackPower();
-                survivors++;
-            }
-        }
+        // Stream API: jen prezivsi zombici -> soucet jejich utoku a jejich pocet
+        int incomingDamage = wave.stream()
+                .filter(Zombie::isAlive)
+                .mapToInt(Zombie::getAttackPower)
+                .sum();
+        long survivors = wave.stream().filter(Zombie::isAlive).count();
 
         // vypocet absorpce plotu
-        int electricFenceAbs = isFlooded ? 0 : (defense.getElectricFences() * 35);
-        int fenceAbsorption = (defense.getWoodenFences() * 15) + electricFenceAbs;
+        int fenceAbsorption = defense.getFenceAbsorption(isFlooded);
 
         int absorbedByFences = Math.min(incomingDamage, fenceAbsorption);
         int breachDamage = incomingDamage - absorbedByFences;
 
-        defense.advanceDay();
 
         if (survivors == 0) {
             log.append("Všichni zombíci byli zneškodněni dříve, než se dostali k plotu.\n");

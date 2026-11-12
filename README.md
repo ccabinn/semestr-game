@@ -1,6 +1,6 @@
 # Farma na konci světa
 
-Autoři: Matěj Cabejšek, Gabriela Brůžková, Samuel Martirosjan, Josef Langmaier
+Autoři: Matěj Cabejšek, Gabriela Brůžková, Samvel Martirosjan, Josef Langmaier
 
 Desktopová tahová survival a farmářská hra v Javě zasazená do post-apokalyptického prostředí. Hráč spravuje vlastní farmu, pěstuje plodiny, obchoduje na trzích, plní úkoly pro přeživší postavy a brání své pole před nočními nájezdy zombíků a extrémním počasím.
 

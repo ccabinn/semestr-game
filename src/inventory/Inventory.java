@@ -1,8 +1,11 @@
 package inventory;
 
+import java.text.Collator;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class Inventory {
 
@@ -43,6 +46,11 @@ public class Inventory {
         return true;
     }
 
+    // vyprazdneni inventare (pouziva se pri nacteni ulozene hry)
+    public void clear() {
+        items.clear();
+    }
+
     // kontrola poctu predmetu
     public boolean hasItem(String itemId, int count) {
         if (itemId == null) return false;
@@ -65,13 +73,28 @@ public class Inventory {
             return "Inventář je prázdný.";
         }
 
-        StringBuilder sb = new StringBuilder("=== INVENTÁŘ ===\n");
-        for (Map.Entry<String, Integer> entry : items.entrySet()) {
-            Item item = itemCatalog.getItem(entry.getKey());
-            String name = (item != null) ? item.getName() : entry.getKey();
-            sb.append("- ").append(name).append(": ").append(entry.getValue()).append(" ks\n");
-        }
-        return sb.toString().trim();
+        Collator czech = Collator.getInstance(Locale.of("cs", "CZ"));
+
+        // Stream API: polozky -> radek "- Nazev: N ks" -> serazeno podle ceske abecedy -> spojeno
+        String lines = items.entrySet().stream()
+                .map(entry -> "- " + getDisplayName(entry.getKey()) + ": " + entry.getValue() + " ks")
+                .sorted(czech)
+                .collect(Collectors.joining("\n"));
+
+        // celkova hodnota inventare podle nakupnich cen
+        int totalValue = items.entrySet().stream()
+                .mapToInt(entry -> {
+                    Item item = itemCatalog.getItem(entry.getKey());
+                    return item != null ? item.getPrice() * entry.getValue() : 0;
+                })
+                .sum();
+
+        return "=== INVENTÁŘ ===\n" + lines + "\nCelková hodnota: " + totalValue + " Kč";
+    }
+
+    private String getDisplayName(String itemId) {
+        Item item = itemCatalog.getItem(itemId);
+        return (item != null) ? item.getName() : itemId;
     }
 
     public ItemCatalog getItemCatalog() {

@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 // Drzi vsechna NPC (klic = id z npcs.json) a obsluhuje prikazy "mluv" a "ukol".
 public class NpcManager {
@@ -108,29 +109,21 @@ public class NpcManager {
         return npc;
     }
 
+    // vsechna NPC v dane lokalite (id -> Npc), pouziva GUI
     public Map<String, Npc> getNpcsInLocation(String locationId) {
-        Map<String, Npc> result = new HashMap<>();
-        if (locationId == null) return result;
-
-        for (Map.Entry<String, Npc> entry : npcs.entrySet()) {
-            if (locationId.equalsIgnoreCase(entry.getValue().getLocationId())) {
-                result.put(entry.getKey(), entry.getValue());
-            }
-        }
-        return result;
+        if (locationId == null) return new HashMap<>();
+        return npcs.entrySet().stream()
+                .filter(entry -> locationId.equalsIgnoreCase(entry.getValue().getLocationId()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     // ma hrac odemceny dany efekt? (= je hotovy ukol, ktery ho dava)
     // stav se pocita z ukolu, takze po nacteni hry (loadStates) sedi automaticky
     public boolean hasEffect(QuestEffect effect) {
-        for (Npc npc : npcs.values()) {
-            for (Quest q : npc.getQuests()) {
-                if (q.getQuestState() == QuestState.DONE && q.getEffects().contains(effect)) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        // flatMap: z kazdeho NPC jeho seznam ukolu -> jeden proud vsech ukolu ve hre
+        return npcs.values().stream()
+                .flatMap(npc -> npc.getQuests().stream())
+                .anyMatch(q -> q.getQuestState() == QuestState.DONE && q.getEffects().contains(effect));
     }
 
     // pro ulozeni hry: radky ve tvaru "elena:1=ACTIVE"

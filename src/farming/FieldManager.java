@@ -94,13 +94,11 @@ public class FieldManager {
             return "Nemáš v inventáři: " + seedName;
         }
 
-        Plot emptyPlot = null;
-        for (Plot p : plots) {
-            if (p.isEmpty()) {
-                emptyPlot = p;
-                break;
-            }
-        }
+        // prvni volny zahonek, nebo null kdyz jsou vsechny obsazene
+        Plot emptyPlot = plots.stream()
+                .filter(Plot::isEmpty)
+                .findFirst()
+                .orElse(null);
 
         if (emptyPlot == null) {
             return "Všechny záhonky jsou obsazené!";
@@ -213,6 +211,11 @@ public class FieldManager {
             return true;
         }
         return false;
+    }
+
+    // pouze pro nacteni ulozene hry (0 az 4 kropitka)
+    public void restoreSprinklerCount(int count) {
+        this.sprinklerCount = Math.max(0, Math.min(4, count));
     }
 
     public List<Plot> getPlots() { return Collections.unmodifiableList(plots); }

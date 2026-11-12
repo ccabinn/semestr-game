@@ -74,6 +74,22 @@ public class WeatherManager {
         }
     }
 
+    // pouze pro nacteni ulozene hry
+    public void restoreState(WeatherType weather, int disasterChance, int cooldownDays, int wellLevel) {
+        this.currentWeather = weather;
+        this.currentDisasterChance = Math.max(0, Math.min(90, disasterChance));
+        this.cooldownDays = Math.max(0, cooldownDays);
+        this.wellLevel = Math.max(0, wellLevel);
+    }
+
+    public int getDisasterChance() {
+        return currentDisasterChance;
+    }
+
+    public int getCooldownDays() {
+        return cooldownDays;
+    }
+
     public void addWellLevel() {
         this.wellLevel++;
     }
