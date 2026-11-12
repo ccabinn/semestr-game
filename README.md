@@ -132,18 +132,18 @@ Příkazy pro farmaření fungují na lokalitě `field` (Pole).
 
 | Příkaz | Aliasy | Parametry | Popis | Příklad |
 | :--- | :--- | :--- | :--- | :--- |
-| `pole` | `zahony`, `fieldstatus` | *žiadný* | Zobrazí stav všech 6 záhonků (plodina, fáze růstu, stav zálivky). | `pole` |
+| `pole` | `zahony`, `fieldstatus` | *žádný* | Zobrazí stav všech 6 záhonků (plodina, fáze růstu, stav zálivky). | `pole` |
 | `zasad` | `plant` | `<id_seminka>` | Zasadí vybrané semínko na první volný záhonek. | `zasad seminko_obili` |
-| `obstarej`| `zali`, `water` | *žiadný* | Zalije všechny zasazené záhonky (spotřebovává EN). | `obstarej` |
-| `sklid` | `harvest` | *žiadný* | Sklidí všechno zralé ovoce a zeleninu ze záhonků do inventáře. | `sklid` |
+| `obstarej`| `zali`, `water` | *žádný* | Zalije všechny zasazené záhonky (spotřebovává EN). | `obstarej` |
+| `sklid` | `harvest` | *žádný* | Sklidí všechno zralé ovoce a zeleninu ze záhonků do inventáře. | `sklid` |
 
 ---
 
 ### 3. Obchod a inventář
 | Příkaz | Aliasy | Parametry | Popis | Příklad |
 | :--- | :--- | :--- | :--- | :--- |
-| `inventar` | `inv` | *žiadný* | Vypíše aktuální obsah hráčova batohu a předměty. | `inventar` |
-| `obchod` | `nabidka` | *žiadný* | Zobrazí zboží dostupné ke koupi v aktuální lokalitě. | `obchod` |
+| `inventar` | `inv` | *žádný* | Vypíše aktuální obsah hráčova batohu a předměty. | `inventar` |
+| `obchod` | `nabidka` | *žádný* | Zobrazí zboží dostupné ke koupi v aktuální lokalitě. | `obchod` |
 | `kup` | `buy` | `<id_itemu> [počet]` | Nakoupí předmět z obchodu. Pokud počet chybí, nakoupí 1 ks. | `kup kropitko`, `kup seminko_mrkev 5` |
 | `prodej` | `sell` | `<id_itemu> [počet]` | Prodá úrodu na trhu (100% ceny na Místním trhu, 200% na Městském trhu). | `prodej mrkev 10` |
 
@@ -153,7 +153,7 @@ Příkazy pro farmaření fungují na lokalitě `field` (Pole).
 | Příkaz | Aliasy | Parametry | Popis | Příklad |
 | :--- | :--- | :--- | :--- | :--- |
 | `mluv` | `talk` | `<id_npc>` | Zahájí rozhovor s NPC postavou v aktuální lokalitě a přijme její úkol. | `mluv bohous`, `mluv elena` |
-| `ukol` | *žiadný* | `<id_npc>` | Pokusí se odevzdat splněný úkol vybrané postavě. | `ukol bohous` |
+| `ukol` | *žádný* | `<id_npc>` | Pokusí se odevzdat splněný úkol vybrané postavě. | `ukol bohous` |
 
 *Přehled NPC postav:* `bohous` (Kutil Bohouš), `roman` (Mechanik Roman), `kral` (Seržant Král), `jarda` (Trhovec Jarda), `obchodnik` (Městský obchodník), `viktor` (Pašerák Viktor), `elena` (Doktorka Elena).
 
