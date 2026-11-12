@@ -17,11 +17,9 @@ public class GameWindow extends JFrame {
 
     private final GameManager gameManager;
 
-    // Komponenty rozhraní
     private JLabel statusLabel;
     private JTextArea logTextArea;
 
-    // Spodní přepínací panel (CardLayout)
     private CardLayout bottomCardLayout;
     private JPanel bottomCardPanel;
 
@@ -41,13 +39,13 @@ public class GameWindow extends JFrame {
         setLocationRelativeTo(null);
         setLayout(new BorderLayout(8, 8));
 
-        // 1. Nahoře: Status Bar + Přepínač CLI/GUI
+        // nahore status bar a prepinac CLI/GUI
         add(createTopPanel(), BorderLayout.NORTH);
 
-        // 2. Uprostřed: Herní deník / Log
+        // uprostred log
         add(createCenterLogPanel(), BorderLayout.CENTER);
 
-        // 3. Dole: Spodní panel (Karta GUI vs CLI)
+        // spodni karta
         add(createBottomCardPanel(), BorderLayout.SOUTH);
 
         updateUIState();
@@ -65,7 +63,7 @@ public class GameWindow extends JFrame {
         statusLabel.setFont(new Font("SansSerif", Font.BOLD, 12));
         topPanel.add(statusLabel, BorderLayout.CENTER);
 
-        toggleModeButton = new JButton("Režim: GUI (Tlačítka)");
+        toggleModeButton = new JButton("Režim: Tlačítka");
         toggleModeButton.addActionListener(e -> toggleInterfaceMode());
         topPanel.add(toggleModeButton, BorderLayout.EAST);
 
@@ -74,7 +72,7 @@ public class GameWindow extends JFrame {
 
     private JPanel createCenterLogPanel() {
         JPanel centerPanel = new JPanel(new BorderLayout());
-        centerPanel.setBorder(BorderFactory.createTitledBorder("Herní deník / Log"));
+        centerPanel.setBorder(BorderFactory.createTitledBorder("Log"));
 
         logTextArea = new JTextArea();
         logTextArea.setEditable(false);
@@ -108,7 +106,7 @@ public class GameWindow extends JFrame {
 
         // KARTA B: CLI Konzole (Vstupní pole + Tlačítko Odeslat)
         JPanel cliCard = new JPanel(new BorderLayout(5, 5));
-        cliCard.setBorder(BorderFactory.createTitledBorder("Konzolový vstup (CLI)"));
+        cliCard.setBorder(BorderFactory.createTitledBorder("Konzolový vstup"));
 
         cliInputField = new JTextField();
         cliInputField.setFont(new Font("Monospaced", Font.PLAIN, 14));
@@ -130,10 +128,10 @@ public class GameWindow extends JFrame {
         isGuiMode = !isGuiMode;
         if (isGuiMode) {
             bottomCardLayout.show(bottomCardPanel, "GUI_CARD");
-            toggleModeButton.setText("Režim: GUI (Tlačítka)");
+            toggleModeButton.setText("Režim: Tlačítka");
         } else {
             bottomCardLayout.show(bottomCardPanel, "CLI_CARD");
-            toggleModeButton.setText("Režim: CLI (Konzole)");
+            toggleModeButton.setText("Režim: Konzole");
             cliInputField.requestFocusInWindow();
         }
     }
@@ -158,7 +156,7 @@ public class GameWindow extends JFrame {
     private void updateStatusBar() {
         Player player = gameManager.getPlayer();
         statusLabel.setText(String.format(
-                "Den: %d | Lokace: %s | Počasí: %s | Energie: %d/100 EN | Peníze: %d Kč | Vozidlo: %s",
+                "Den: %d | Lokace: %s | Počasí: %s | Energie: %d/100 | Peníze: %d Kč | Vozidlo: %s",
                 gameManager.getCurrentDay(),
                 player.getCurrentLocation().getName(),
                 gameManager.getWeatherManager().getCurrentWeather().getDescription(),
@@ -172,11 +170,11 @@ public class GameWindow extends JFrame {
         actionPanel.removeAll();
         String locId = gameManager.getPlayer().getCurrentLocation().getId().toLowerCase();
 
-        // Základní tlačítka dostupné všude
+        // tlacitka dostupna vsude
         addActionButton("Stav hráče", "stav");
         addActionButton("Inventář", "inventar");
 
-        // Tlačítka podle lokace
+        // podle lokace
         switch (locId) {
             case "field":
                 JButton plantBtn = new JButton("Zasadit...");
@@ -188,7 +186,7 @@ public class GameWindow extends JFrame {
                 addActionButton("Stav záhonků", "pole");
                 break;
             case "home":
-                addActionButton("Vyspat se (Nový den)", "spi");
+                addActionButton("Vyspat se", "spi");
                 break;
             case "local_market":
             case "city_market":
@@ -222,7 +220,7 @@ public class GameWindow extends JFrame {
             String targetId = entry.getKey();
             String targetName = entry.getValue().getDestination().getName();
 
-            JButton moveButton = new JButton("Jdi do: " + targetName);
+            JButton moveButton = new JButton("Jdi: " + targetName);
             moveButton.addActionListener(e -> {
                 String result = gameManager.processCommand("jdi " + targetId);
                 appendLog(result);
@@ -245,9 +243,7 @@ public class GameWindow extends JFrame {
         actionPanel.add(btn);
     }
 
-    /**
-     * Dialog pro výběr semínka z inventáře při sázení na poli.
-     */
+    // vyber seminka pri sazeni
     private void openPlantDialog() {
         Player player = gameManager.getPlayer();
         Map<String, Integer> inventoryItems = player.getInventory().getItems();
@@ -295,7 +291,7 @@ public class GameWindow extends JFrame {
         }
     }
 
-    // Pomocná přepravní třída pro výběr semínka v JOptionPane dialogu
+    // pomocna trida pro vyber seminka pri sazeni
     private static class SeedOption {
         private final Item item;
         private final int count;
@@ -313,17 +309,15 @@ public class GameWindow extends JFrame {
         }
     }
 
-    /**
-     * Dialog pro interakci s postavami v aktuální lokaci.
-     */
+    // interakce s postavami v aktualni lokaci
     private void openNpcDialog(Map<String, assets.Npc> localNpcs) {
         if (localNpcs.isEmpty()) return;
 
         String selectedNpcId;
         assets.Npc selectedNpc;
 
-        // Pokud je v lokaci pouze 1 postava, vybereme ji automaticky.
-        // Pokud je jich více, necháme hráče vybrat ze seznamu.
+        // pokud je v lokaci 1 postava, automaticky ji vybereme
+        // pokud jich je vice, dame seznam
         if (localNpcs.size() == 1) {
             Map.Entry<String, assets.Npc> entry = localNpcs.entrySet().iterator().next();
             selectedNpcId = entry.getKey();
@@ -344,12 +338,12 @@ public class GameWindow extends JFrame {
                     options.get(0)
             );
 
-            if (chosen == null) return; // Storno / zavření dialogu
+            if (chosen == null) return; // storno nebo zavreni dialogu
             selectedNpcId = chosen.getId();
             selectedNpc = localNpcs.get(selectedNpcId);
         }
 
-        // Dialog s volbou akce pro vybranou postavu
+        // volba akce pro dane npc
         Object[] actionButtons = {"Mluvit", "Odevzdat úkol", "Zrušit"};
         int choice = JOptionPane.showOptionDialog(
                 this,
@@ -362,18 +356,18 @@ public class GameWindow extends JFrame {
                 actionButtons[0]
         );
 
-        if (choice == 0) { // Mluvit
+        if (choice == 0) { // mluvit
             String result = gameManager.processCommand("mluv " + selectedNpcId);
             appendLog(result);
             updateUIState();
-        } else if (choice == 1) { // Odevzdat úkol
+        } else if (choice == 1) { // odevzdat ukol
             String result = gameManager.processCommand("ukol " + selectedNpcId);
             appendLog(result);
             updateUIState();
         }
     }
 
-    // Pomocná přepravka pro výběr NPC v dropdownu
+    // pomocna trida pro vyber npc
     private static class NpcOption {
         private final String id;
         private final String name;

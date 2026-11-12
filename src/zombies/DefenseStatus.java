@@ -22,13 +22,13 @@ public class DefenseStatus {
 
     public int getEffectiveDogDamage() {
         if (guardDogs > 0 && dogFoodDaysLeft > 0) {
-            return guardDogs * 15;
+            return guardDogs * 25;
         }
         return 0;
     }
 
     public int getTurretDamage() {
-        return turrets * 30; // Turret z Army shopu udělí 30 damage za noc
+        return turrets * 50; // Turret z Army shopu udělí 30 damage za noc
     }
 
     public int getPlayerWeaponDamage() {

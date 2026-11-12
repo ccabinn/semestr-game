@@ -146,9 +146,9 @@ public class GameManager implements GameContext {
         return switch (command) {
             case "zasad", "plant" -> (param1 == null) ? "Co chceš zasadit? Použití: zasad <id_plodiny/seminka>"
                     : fieldManager.plantCrop(param1, player, itemCatalog);
-            case "obstarej", "zali", "water" -> fieldManager.tendPlots(player, weatherManager.isDrought());
+            case "obstarej", "zali", "water" -> fieldManager.tendPlots(player, weatherManager.isDrought(), weatherManager.isFlooded());
             case "sklid", "harvest" -> fieldManager.harvestAll(player, itemCatalog);
-            case "pole", "zahony", "fieldstatus" -> fieldManager.getFieldStatus(itemCatalog, weatherManager.isDrought());
+            case "pole", "zahony", "fieldstatus" -> fieldManager.getFieldStatus(itemCatalog, weatherManager.isDrought(), weatherManager.isFlooded());
             default -> "Neznámý farmářský příkaz.";
         };
     }
@@ -223,14 +223,9 @@ public class GameManager implements GameContext {
         return text;
     }
 
-    // =========================================================
-    // LOGIKA PROCHÁZENÍ DNÍ & VEDLEJŠÍ EFEKTY NÁKUPU
-    // =========================================================
-
+    // prochazeni dni
     public String advanceToNextDay() {
         StringBuilder sb = new StringBuilder();
-
-        syncDefenseStatusFromInventory();
 
         NightRaidResult raidResult = zombieManager.resolveNightRaid(
                 currentDay,
@@ -251,7 +246,7 @@ public class GameManager implements GameContext {
 
         currentDay++;
 
-        fieldManager.advanceDay(weatherManager.isDrought());
+        fieldManager.advanceDay(weatherManager.isDrought(), weatherManager.isFlooded());
         sb.append("Plodiny na poli pokročily v růstu.\n\n");
 
         String weatherReport = weatherManager.advanceWeather(currentDay);
@@ -261,6 +256,7 @@ public class GameManager implements GameContext {
         return sb.toString().trim();
     }
 
+    // side effects nakupu
     private void handlePostPurchaseEffects(String itemId, int count) {
         String id = itemId.toLowerCase();
         switch (id) {
@@ -285,6 +281,12 @@ public class GameManager implements GameContext {
             case "krmeni_psy" -> {
                 for (int i = 0; i < count; i++) defenseStatus.feedDogs();
             }
+            case "pes" -> defenseStatus.addGuardDogs(count);
+            case "plot" -> defenseStatus.addWoodenFence(count);
+            case "elektricka_ohrada" -> defenseStatus.addElectricFence(count);
+            case "turret" -> defenseStatus.addTurret(count);
+            case "puska" -> defenseStatus.setHasRifle(true);
+            case "brokovnice" -> defenseStatus.setHasShotgun(true);
         }
     }
 
@@ -376,8 +378,8 @@ public class GameManager implements GameContext {
                 for (farming.Plot plot : fieldManager.getPlots()) {
                     if (!plot.isEmpty() && !plot.isWithered()) {
                         while (!plot.isMature()) {
-                            plot.advanceDay(false);
                             plot.water();
+                            plot.advanceDay(false, false);
                         }
                     }
                 }

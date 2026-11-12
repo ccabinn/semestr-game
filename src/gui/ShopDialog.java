@@ -97,10 +97,9 @@ public class ShopDialog extends JDialog {
         Player player = gameManager.getPlayer();
         String currentLocationId = player.getCurrentLocation().getId().toLowerCase();
 
-        // Použití tvojí metody z ItemCatalog
         List<Item> availableItems = new ArrayList<>(gameManager.getItemCatalog().getItemsForLocation(currentLocationId));
 
-        // Seřazení podle kategorií a následně abecedně česky
+        // serazeni podle kategorie a pak podle abecedy
         Collator collator = Collator.getInstance(new Locale("cs", "CZ"));
         availableItems.sort((a, b) -> {
             int catCompare = Integer.compare(getCategoryOrder(a.getType()), getCategoryOrder(b.getType()));
@@ -171,7 +170,7 @@ public class ShopDialog extends JDialog {
         refreshData();
     }
 
-    // Pomocná obalová třída pro formátování v JListu (Nákup)
+    // pomocna trida pro nakup
     private static class ItemWrapper {
         private final Item item;
 
@@ -197,7 +196,7 @@ public class ShopDialog extends JDialog {
         }
     }
 
-    // Pomocná obalová třída pro formátování v JListu (Prodej)
+    // pomocna trida pro prodej
     private static class InventoryItemWrapper {
         private final Item item;
         private final int count;

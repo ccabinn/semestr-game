@@ -22,7 +22,7 @@ public class FieldManager {
     }
 
     // textovy prehled zahonu na poli
-    public String getFieldStatus(ItemCatalog itemCatalog, boolean isDrought) {
+    public String getFieldStatus(ItemCatalog itemCatalog, boolean isDrought, boolean isFlooded) {
         if (plots == null || plots.isEmpty()) {
             return "Na poli nejsou žádné záhonky.";
         }
@@ -41,9 +41,11 @@ public class FieldManager {
 
                 // stav zalevani
                 String waterStatus;
-                if (plot.isWateredToday()) {
+                if (isFlooded) {
+                    waterStatus = "Zatopeno (Není potřeba zalévat)";
+                } else if (plot.isWateredToday()) {
                     waterStatus = "Zalito (dnes)";
-                } else if (plot.requiresWateringToday(isDrought)) {
+                } else if (plot.requiresWateringToday(isDrought, false)) {
                     waterStatus = "NUTNO ZALÍT!";
                 } else {
                     waterStatus = "V pořádku (stačí zítra)";
@@ -116,15 +118,27 @@ public class FieldManager {
         return "Zasadil jsi " + cropName + " na záhonek č. " + emptyPlot.getIndex() + ".";
     }
 
-    public String tendPlots(Player player, boolean isDrought) {
-        int baseCost = isDrought ? 10 : 5; // sucho = 2x vetsi spotreba energie
+    public String tendPlots(Player player, boolean isDrought, boolean isFlooded) {
+        if (isFlooded) {
+            return "Záhonky jsou zatopené, není potřeba plýtvat energií na zalévání.";
+        }
+
+        int baseCost = isDrought ? 10 : 5;
         int costPerPlot = Math.max(1, baseCost - sprinklerCount);
 
         int wateredCount = 0;
+        int clearedCount = 0;
         int totalEnergyCost = 0;
 
         for (Plot p : plots) {
-            if (!p.isEmpty() && !p.isWithered() && !p.isWateredToday()) {
+            if (p.isWithered()) {
+                p.clear();
+                clearedCount++;
+                continue;
+            }
+
+            // zalevani zivych plodin
+            if (!p.isEmpty() && !p.isWateredToday() && p.requiresWateringToday(isDrought, false)) {
                 if (player.getEnergy() < totalEnergyCost + costPerPlot) {
                     break;
                 }
@@ -134,19 +148,36 @@ public class FieldManager {
             }
         }
 
-        if (wateredCount == 0) {
-            return "Žádné záhonky nevyžadovaly zalití nebo nemáš dostatek energie.";
+        // vyhodnoceni
+        if (wateredCount == 0 && clearedCount == 0) {
+            return "Žádné záhonky nevyžadovaly zalití a nebylo co vytrhávat.";
         }
 
-        player.removeEnergy(totalEnergyCost);
-        return "Zalil jsi " + wateredCount + " záhonků. Spotřebováno " + totalEnergyCost + " EN.";
+        StringBuilder sb = new StringBuilder();
+        if (wateredCount > 0) {
+            player.removeEnergy(totalEnergyCost);
+            sb.append("Zalil jsi ").append(wateredCount).append(" záhonků (Spotřebováno ")
+                    .append(totalEnergyCost).append(" EN). ");
+        }
+        if (clearedCount > 0) {
+            sb.append("Vytrhal jsi ").append(clearedCount).append(" uschlých plodin.");
+        }
+
+        return sb.toString().trim();
     }
+
 
     public String harvestAll(Player player, ItemCatalog itemCatalog) {
         int harvestedCount = 0;
+        int clearedCount = 0;
         StringBuilder sb = new StringBuilder("Sklizeň:\n");
 
         for (Plot p : plots) {
+            // cisteni uschlych plodin
+            if (p.isWithered()) {
+                p.clear();
+                clearedCount++;
+            }
             if (p.isMature()) {
                 Crop harvested = p.harvest();
                 player.getInventory().addItem(harvested.getCropItemId(), 1);
@@ -163,12 +194,16 @@ public class FieldManager {
             return "Žádné plodiny nejsou připraveny ke sklizni.";
         }
 
+        if (clearedCount > 0) {
+            sb.append("- Vytrháno uschlých plodin: ").append(clearedCount).append("\n");
+        }
+
         return sb.toString().trim();
     }
 
-    public void advanceDay(boolean isDrought) {
+    public void advanceDay(boolean isDrought, boolean isFlooded) {
         for (Plot p : plots) {
-            p.advanceDay(isDrought);
+            p.advanceDay(isDrought, isFlooded);
         }
     }
 
