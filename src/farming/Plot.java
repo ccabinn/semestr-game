@@ -87,6 +87,16 @@ public class Plot {
         return harvested;
     }
 
+    // pouze pro nacteni ulozene hry - nastavi zahonek do ulozeneho stavu
+    public void restore(Crop crop, int growthDaysCurrent, boolean wateredToday,
+                        boolean wateredYesterday, boolean isWithered) {
+        this.crop = crop;
+        this.growthDaysCurrent = Math.max(0, growthDaysCurrent);
+        this.wateredToday = wateredToday;
+        this.wateredYesterday = wateredYesterday;
+        this.isWithered = isWithered;
+    }
+
     public void clear() {
         this.crop = null;
         this.growthDaysCurrent = 0;
@@ -104,4 +114,6 @@ public class Plot {
     public boolean isWateredToday() { return wateredToday; }
 
     public boolean isWithered() { return isWithered; }
+
+    public boolean wasWateredYesterday() { return wateredYesterday; }
 }

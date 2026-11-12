@@ -3,8 +3,10 @@ package game;
 import assets.GameContext;
 import assets.NpcManager;
 import assets.QuestEffect;
+import farming.Crop;
 import farming.CropCatalog;
 import farming.FieldManager;
+import farming.Plot;
 import inventory.Item;
 import inventory.ItemCatalog;
 import inventory.ItemType;
@@ -14,18 +16,23 @@ import map.GamePlan;
 import map.Location;
 import map.TransportType;
 import player.Player;
+import save.GameState;
+import save.GameStorage;
+import save.JsonGameStorage;
 import weather.WeatherManager;
 import weather.WeatherType;
 import zombies.DefenseStatus;
 import zombies.NightRaidResult;
 import zombies.ZombieManager;
 
+import java.io.IOException;
+import java.nio.file.Path;
 import java.text.Collator;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 public class GameManager implements GameContext {
 
@@ -43,11 +50,19 @@ public class GameManager implements GameContext {
 
     // Buffer pro zachycení výstupu rozhovorů a úkolů z NpcManageru
     private final StringBuilder output = new StringBuilder();
+    private final GameStorage storage; // kam se uklada hra (rozhrani - konkretni format nezname)
 
     private int currentDay = 1;
     private boolean isGameOver = false;
 
+    // bezna hra: ukladani do slozky "saves" vedle spustene hry
     public GameManager() {
+        this(new JsonGameStorage(Path.of("saves")));
+    }
+
+    // vlastni uloziste - hodi se hlavne v testech (docasna slozka)
+    public GameManager(GameStorage storage) {
+        this.storage = storage;
         this.itemCatalog = new ItemCatalog();
         this.cropCatalog = new CropCatalog();
         this.gamePlan = new GamePlan();
@@ -60,7 +75,7 @@ public class GameManager implements GameContext {
 
         this.zombieManager = new ZombieManager();
         this.weatherManager = new WeatherManager();
-        this.defenseStatus = new DefenseStatus(0, 0, 0, 0, 0, false, false);
+        this.defenseStatus = new DefenseStatus(itemCatalog);
 
         // Startovní výbava podle GDD
         player.getInventory().addItem("seminko_obili", 2);
@@ -88,6 +103,13 @@ public class GameManager implements GameContext {
             case "stav", "status" -> getPlayerStatus();
             case "napoveda", "pomoc", "help" -> getHelpText();
             case "spi", "sleep" -> handleSleep();
+            case "jez", "eat" -> handleEat(param1);
+            case "nakrm_psy" -> handleFeedDogs();
+
+            // Ukladani a nacitani hry
+            case "uloz", "save" -> saveGame(param1);
+            case "nacti", "load" -> loadGame(param1);
+            case "ulozene", "saves" -> listSavedGames();
 
             // Obchod
             case "obchod", "nabidka" -> shopManager.getShopOffers(player);
@@ -119,6 +141,201 @@ public class GameManager implements GameContext {
             return "Vyspat se do nového dne můžeš pouze v Domě!";
         }
         return advanceToNextDay();
+    }
+
+    // =========================================================
+    // UKLADANI A NACITANI HRY
+    // =========================================================
+
+    private static final String DEFAULT_SAVE_NAME = "hra";
+
+    // uloz [nazev]: bez nazvu se uklada pod "hra"
+    private String saveGame(String name) {
+        String saveName = (name == null) ? DEFAULT_SAVE_NAME : name;
+        try {
+            storage.save(saveName, createSnapshot());
+            return "Hra uložena jako '" + saveName + "' (den " + currentDay + ").";
+        } catch (IOException e) {
+            return "Hru se nepodařilo uložit: " + e.getMessage();
+        }
+    }
+
+    // nacti [nazev]: nejdriv vse zkontroluje, teprve pak prepise aktualni hru
+    private String loadGame(String name) {
+        String saveName = (name == null) ? DEFAULT_SAVE_NAME : name;
+        try {
+            GameState state = storage.load(saveName);
+            String error = validateSnapshot(state);
+            if (error != null) {
+                return "Uloženou hru nelze načíst: " + error;
+            }
+            applySnapshot(state);
+            return "Načtena hra '" + saveName + "'.\n\n" + getPlayerStatus();
+        } catch (IOException e) {
+            return "Hru se nepodařilo načíst: " + e.getMessage();
+        }
+    }
+
+    private String listSavedGames() {
+        try {
+            List<String> saves = storage.listSaves();
+            if (saves.isEmpty()) {
+                return "Zatím nemáš žádnou uloženou hru. Ulož ji příkazem 'uloz [nazev]'.";
+            }
+            return "Uložené hry: " + String.join(", ", saves);
+        } catch (IOException e) {
+            return "Seznam uložených her nelze načíst: " + e.getMessage();
+        }
+    }
+
+    // prevede aktualni stav hry na GameState (jen cisla, texty a ID)
+    public GameState createSnapshot() {
+        // Stream API: kazdy zahonek -> PlotState
+        List<GameState.PlotState> plotStates = fieldManager.getPlots().stream()
+                .map(plot -> new GameState.PlotState(
+                        plot.isEmpty() ? null : plot.getCrop().getId(),
+                        plot.getGrowthDaysCurrent(),
+                        plot.isWateredToday(),
+                        plot.wasWateredYesterday(),
+                        plot.isWithered()))
+                .toList();
+
+        GameState.WeatherState weather = new GameState.WeatherState(
+                weatherManager.getCurrentWeather().name(),
+                weatherManager.getDisasterChance(),
+                weatherManager.getCooldownDays(),
+                weatherManager.getWellLevel());
+
+        return new GameState(
+                GameState.CURRENT_VERSION,
+                currentDay,
+                player.getCurrentLocation().getId(),
+                player.getEnergy(),
+                player.getMoney(),
+                player.getBestVehicle().name(),
+                player.hasEngineTuning(),
+                new ArrayList<>(player.getPlantedVegetables()),
+                new HashMap<>(player.getInventory().getItems()),
+                plotStates,
+                fieldManager.getSprinklerCount(),
+                weather,
+                defenseStatus.getDogFoodDaysLeft(),
+                npcManager.saveStates());
+    }
+
+    // kontrola ulozeneho souboru pred nactenim; vraci popis chyby, nebo null kdyz je vse v poradku
+    // (soubor mohl nekdo rucne upravit, nebo je z jine verze hry)
+    private String validateSnapshot(GameState s) {
+        if (s.formatVersion() != GameState.CURRENT_VERSION) {
+            return "nepodporovaná verze souboru (" + s.formatVersion() + ").";
+        }
+        if (s.day() < 1) return "neplatný den " + s.day() + ".";
+        if (gamePlan.getLocationById(s.locationId()) == null) {
+            return "neznámá lokalita '" + s.locationId() + "'.";
+        }
+        if (!isEnumValue(TransportType.class, s.vehicle())) return "neznámé vozidlo '" + s.vehicle() + "'.";
+        if (s.weather() == null || !isEnumValue(WeatherType.class, s.weather().type())) {
+            return "neplatné počasí.";
+        }
+        if (s.inventory() == null || s.plots() == null || s.plantedVegetables() == null || s.questStates() == null) {
+            return "v souboru chybí část dat.";
+        }
+        if (s.plots().size() != fieldManager.getPlots().size()) {
+            return "špatný počet záhonků (" + s.plots().size() + ").";
+        }
+
+        // Stream API: najdi predmety / plodiny, ktere hra nezna
+        List<String> unknownItems = s.inventory().keySet().stream()
+                .filter(id -> !itemCatalog.hasItem(id))
+                .toList();
+        if (!unknownItems.isEmpty()) return "neznámé předměty v inventáři: " + unknownItems + ".";
+
+        boolean badCount = s.inventory().values().stream().anyMatch(count -> count == null || count <= 0);
+        if (badCount) return "neplatný počet kusů v inventáři.";
+
+        List<String> unknownCrops = s.plots().stream()
+                .map(GameState.PlotState::cropId)
+                .filter(id -> id != null && cropCatalog.getCrop(id) == null)
+                .toList();
+        if (!unknownCrops.isEmpty()) return "neznámé plodiny na poli: " + unknownCrops + ".";
+
+        return null;
+    }
+
+    private static <E extends Enum<E>> boolean isEnumValue(Class<E> type, String name) {
+        if (name == null) return false;
+        try {
+            Enum.valueOf(type, name);
+            return true;
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+    }
+
+    // prepise aktualni hru stavem ze souboru (volat az po validateSnapshot)
+    private void applySnapshot(GameState s) {
+        currentDay = s.day();
+        isGameOver = false;
+
+        player.setCurrentLocation(gamePlan.getLocationById(s.locationId()));
+        player.restoreState(s.energy(), s.money(), TransportType.valueOf(s.vehicle()),
+                s.engineTuning(), s.plantedVegetables());
+
+        player.getInventory().clear();
+        s.inventory().forEach((itemId, count) -> player.getInventory().addItem(itemId, count));
+
+        List<Plot> plots = fieldManager.getPlots();
+        for (int i = 0; i < plots.size(); i++) {
+            GameState.PlotState ps = s.plots().get(i);
+            Crop crop = (ps.cropId() == null) ? null : cropCatalog.getCrop(ps.cropId());
+            plots.get(i).restore(crop, ps.growthDays(), ps.wateredToday(), ps.wateredYesterday(), ps.withered());
+        }
+        fieldManager.restoreSprinklerCount(s.sprinklerCount());
+
+        GameState.WeatherState w = s.weather();
+        weatherManager.restoreState(WeatherType.valueOf(w.type()), w.disasterChance(), w.cooldownDays(), w.wellLevel());
+
+        syncDefenseStatusFromInventory();
+        defenseStatus.restoreDogFoodDays(s.dogFoodDaysLeft());
+
+        npcManager.loadStates(s.questStates());
+    }
+
+    // jez <jidlo>: snedeni jidla z inventare doplni energii o "value" z items.json
+    private String handleEat(String itemId) {
+        if (itemId == null) return "Co chceš sníst? Použití: jez <jidlo>";
+        Item item = itemCatalog.getItem(itemId);
+        if (item == null || item.getType() != ItemType.FOOD) {
+            return "'" + itemId + "' se nedá sníst.";
+        }
+        if (!player.getInventory().hasItem(itemId, 1)) {
+            return "Tento předmět nemáš v inventáři.";
+        }
+        if (player.getEnergy() >= 100) {
+            return "Nemáš hlad, energii máš plnou (100/100).";
+        }
+        player.getInventory().removeItem(itemId, 1);
+        int before = player.getEnergy();
+        player.addEnergy(item.getValue());
+        return "Snědl jsi " + item.getName() + ". Energie +" + (player.getEnergy() - before)
+                + " (" + player.getEnergy() + "/100).";
+    }
+
+    // nakrm_psy: spotrebuje 1x krmeni a psi brani farmu dalsich 5 dni
+    private String handleFeedDogs() {
+        if (!player.getCurrentLocation().getId().equalsIgnoreCase("field")) {
+            return "Psy můžeš nakrmit pouze na poli!";
+        }
+        syncDefenseStatusFromInventory();
+        if (defenseStatus.getGuardDogs() == 0) {
+            return "Nemáš žádné hlídací psy. Kup si je na Místním trhu.";
+        }
+        if (!player.getInventory().removeItem("krmeni_psy", 1)) {
+            return "Nemáš krmení pro psy. Koupíš ho na Místním trhu.";
+        }
+        defenseStatus.feedDogs();
+        return "Nakrmil jsi psy (" + defenseStatus.getGuardDogs() + "). Budou hlídat dalších "
+                + DefenseStatus.DOG_FOOD_DAYS + " dní.";
     }
 
     private String handleBuy(String itemId, String countParam) {
@@ -249,6 +466,9 @@ public class GameManager implements GameContext {
             sb.append("Doplněno +50 energie ze spánku.\n");
         }
 
+        // psum ubyde jeden den krmeni (kazdou noc, i kdyz zombici neprisli)
+        defenseStatus.advanceDay();
+
         currentDay++;
 
         fieldManager.advanceDay(weatherManager.isDrought());
@@ -282,26 +502,12 @@ public class GameManager implements GameContext {
             case "hlubsi_studna" -> {
                 for (int i = 0; i < count; i++) weatherManager.addWellLevel();
             }
-            case "krmeni_psy" -> {
-                for (int i = 0; i < count; i++) defenseStatus.feedDogs();
-            }
         }
     }
 
+    // prepocita obranu podle inventare (psi, ploty, zbrane...); krmeni psu zustava
     private void syncDefenseStatusFromInventory() {
-        Map<String, Integer> items = player.getInventory().getItems();
-
-        int dogs = items.getOrDefault("pes", 0);
-        int woodenFences = items.getOrDefault("plot", 0);
-        int electricFences = items.getOrDefault("elektricka_ohrada", 0);
-        int turrets = items.getOrDefault("turret", 0);
-        boolean hasRifle = items.getOrDefault("puska", 0) > 0;
-        boolean hasShotgun = items.getOrDefault("brokovnice", 0) > 0;
-        int currentDogFoodDays = (defenseStatus != null) ? defenseStatus.getDogFoodDaysLeft() : 0;
-
-        this.defenseStatus = new DefenseStatus(
-                dogs, currentDogFoodDays, woodenFences, electricFences, turrets, hasRifle, hasShotgun
-        );
+        defenseStatus.updateFromInventory(player.getInventory().getItems());
     }
 
     public String getPlayerStatus() {
@@ -311,7 +517,8 @@ public class GameManager implements GameContext {
                         "Počasí: %s\n" +
                         "Energie: %d/100 EN | Peníze: %d Kč\n" +
                         "Vozidlo: %s | Motorový tuning: %s\n" +
-                        "Zasazeno unikátní zeleniny: %d/8",
+                        "Zasazeno unikátní zeleniny: %d/8\n" +
+                        "%s",
                 currentDay,
                 player.getCurrentLocation().getName(),
                 player.getCurrentLocation().getId(),
@@ -320,8 +527,21 @@ public class GameManager implements GameContext {
                 player.getMoney(),
                 player.getBestVehicle().getDisplayName(),
                 player.hasEngineTuning() ? "ANO" : "NE",
-                player.getPlantedVegetablesCount()
+                player.getPlantedVegetablesCount(),
+                getDefenseSummary()
         );
+    }
+
+    // jeden radek o obrane farmy pro prikaz "stav"
+    private String getDefenseSummary() {
+        syncDefenseStatusFromInventory();
+        String dogs = defenseStatus.getGuardDogs() == 0 ? "žádní"
+                : defenseStatus.getGuardDogs() + " (" + (defenseStatus.areDogsFed()
+                    ? "nakrmení ještě " + defenseStatus.getDogFoodDaysLeft() + " dní" : "HLADOVÍ") + ")";
+        return "Obrana: psi " + dogs
+                + " | ploty " + defenseStatus.getWoodenFences()
+                + " | el. ohrady " + defenseStatus.getElectricFences()
+                + " | turrety " + defenseStatus.getTurrets();
     }
 
     // devtools, pouze pres konzoli
@@ -457,6 +677,11 @@ public class GameManager implements GameContext {
                 "- obstarej              : Zalití a obstarání záhonků na poli\n" +
                 "- sklid                 : Sklizeň dozrálých plodin na poli\n" +
                 "- spi                   : Spánek a posun do dalšího dne (pouze v Domě)\n" +
+                "- jez <jidlo>           : Sní jídlo z inventáře a doplní energii (např. 'jez chleb')\n" +
+                "- nakrm_psy             : Nakrmí psy na 5 dní (pouze na poli, spotřebuje krmení)\n" +
+                "- uloz [nazev]          : Uloží rozehranou hru (bez názvu jako 'hra')\n" +
+                "- nacti [nazev]         : Načte uloženou hru\n" +
+                "- ulozene               : Vypíše seznam uložených her\n" +
                 "- mluv <npc>            : Rozhovor s postavou (např. 'mluv bohous')\n" +
                 "- ukol <npc>            : Odevzdání úkolu postavě (např. 'ukol elena')\n" +
                 "- napoveda              : Vypíše tuto nápovědu";

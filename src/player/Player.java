@@ -5,6 +5,7 @@ import inventory.ItemCatalog;
 import map.Location;
 import map.TransportType;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -42,6 +43,17 @@ public class Player {
 
     public Set<String> getPlantedVegetables() {
         return Collections.unmodifiableSet(plantedVegetables);
+    }
+
+    // pouze pro nacteni ulozene hry - nastavi hodnoty primo (s kontrolou rozsahu)
+    public void restoreState(int energy, int money, TransportType bestVehicle,
+                             boolean hasEngineTuning, Collection<String> plantedVegetables) {
+        setEnergy(energy);
+        this.money = Math.max(0, money);
+        this.bestVehicle = bestVehicle;
+        this.hasEngineTuning = hasEngineTuning;
+        this.plantedVegetables.clear();
+        this.plantedVegetables.addAll(plantedVegetables);
     }
 
     public void addEnergy(int amount) {

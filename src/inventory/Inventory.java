@@ -43,6 +43,11 @@ public class Inventory {
         return true;
     }
 
+    // vyprazdneni inventare (pouziva se pri nacteni ulozene hry)
+    public void clear() {
+        items.clear();
+    }
+
     // kontrola poctu predmetu
     public boolean hasItem(String itemId, int count) {
         if (itemId == null) return false;

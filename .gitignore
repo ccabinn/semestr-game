@@ -31,3 +31,5 @@ bin/
 
 ### Maven ###
 target/
+### Ulozene hry ###
+saves/
