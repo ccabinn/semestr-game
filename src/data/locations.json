@@ -14,16 +14,16 @@
       {
         "targetId": "local_market",
         "requiredTransport": "BIKE",
-        "bikeEnergy": 20,
-        "carEnergy": 10,
-        "vanEnergy": 5
+        "bikeEnergy": 40,
+        "carEnergy": 20,
+        "vanEnergy": 10
       },
       {
         "targetId": "city",
         "requiredTransport": "CAR",
         "bikeEnergy": 999,
-        "carEnergy": 20,
-        "vanEnergy": 10
+        "carEnergy": 40,
+        "vanEnergy": 20
       }
     ]
   },
@@ -49,9 +49,9 @@
       {
         "targetId": "home",
         "requiredTransport": "BIKE",
-        "bikeEnergy": 20,
-        "carEnergy": 10,
-        "vanEnergy": 5
+        "bikeEnergy": 0,
+        "carEnergy": 0,
+        "vanEnergy": 0
       }
     ]
   },
@@ -64,8 +64,8 @@
         "targetId": "home",
         "requiredTransport": "CAR",
         "bikeEnergy": 999,
-        "carEnergy": 20,
-        "vanEnergy": 10
+        "carEnergy": 0,
+        "vanEnergy": 0
       },
       {
         "targetId": "autobazar",
@@ -83,10 +83,10 @@
       },
       {
         "targetId": "city_market",
-        "requiredTransport": "FOOT",
-        "bikeEnergy": 0,
-        "carEnergy": 0,
-        "vanEnergy": 0
+        "requiredTransport": "VAN",
+        "bikeEnergy": 999,
+        "carEnergy": 999,
+        "vanEnergy": 10
       }
     ]
   },

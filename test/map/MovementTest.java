@@ -26,11 +26,11 @@ class MovementTest {
         assertEquals(100, player.getEnergy());
     }
 
-    @Test
-    void bikeToMarketCosts20Energy() {
+     @Test
+    void bikeToMarketCosts40Energy() {
         gamePlan.movePlayer(player, "local_market");
         assertEquals("local_market", player.getCurrentLocation().getId());
-        assertEquals(80, player.getEnergy());
+        assertEquals(60, player.getEnergy());   // bylo 80
     }
 
     @Test
@@ -45,7 +45,7 @@ class MovementTest {
         player.setBestVehicle(TransportType.CAR);
         gamePlan.movePlayer(player, "city");
         assertEquals("city", player.getCurrentLocation().getId());
-        assertEquals(80, player.getEnergy()); // auto do Mesta = 20
+        assertEquals(70, player.getEnergy());   // bylo 80 (auto do Mesta = 30)
     }
 
     @Test
@@ -59,8 +59,8 @@ class MovementTest {
     @Test
     void engineTuningLowersCarCostByFive() {
         Passage toCity = gamePlan.getLocationById("home").getPassage("city");
-        assertEquals(20, toCity.getEnergyCost(TransportType.CAR, false));
-        assertEquals(15, toCity.getEnergyCost(TransportType.CAR, true));
-        assertEquals(5, toCity.getEnergyCost(TransportType.VAN, true));
+        assertEquals(30, toCity.getEnergyCost(TransportType.CAR, false));  // bylo 20
+        assertEquals(25, toCity.getEnergyCost(TransportType.CAR, true));   // bylo 15
+        assertEquals(10, toCity.getEnergyCost(TransportType.VAN, true));   // bylo 5
     }
 }
