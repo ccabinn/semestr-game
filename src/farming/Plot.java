@@ -33,8 +33,13 @@ public class Plot {
         }
     }
 
-    public void advanceDay(boolean isDrought) {
+    public void advanceDay(boolean isDrought, boolean isFlooded) {
         if (isEmpty() || isWithered) return;
+
+        // pri zaplave se automaticky zalije
+        if (isFlooded) {
+            wateredToday = true;
+        }
 
         // pri suchu je potreba zalevat kazdy den vse
         boolean requiresCare = isDrought || crop.getWateringFrequency() == WateringFrequency.EVERY_DAY || !wateredYesterday;
@@ -54,11 +59,16 @@ public class Plot {
         return !isEmpty() && !isWithered && growthDaysCurrent >= crop.getGrowthDays();
     }
 
-    // true pokud ten den plodina nutne potrebuje zalet
-    public boolean requiresWateringToday(boolean isDrought) {
+    public boolean requiresWateringToday(boolean isDrought, boolean isFlooded) {
         if (isEmpty() || isWithered || wateredToday) {
             return false;
         }
+
+        // pri zaplave je zalito
+        if (isFlooded) {
+            return false;
+        }
+
         // sucho nebo denni zalevani potrebuje kazdy den
         if (isDrought || crop.getWateringFrequency() == WateringFrequency.EVERY_DAY) {
             return true;

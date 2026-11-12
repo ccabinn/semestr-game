@@ -12,11 +12,11 @@ public class ZombieWaveFactory {
         }
 
 
-        int baseCount = 1 + (day - 10) / 2;
+        int baseCount = 1 + ((day - 10) / 2);
 
         for (int i = 1; i <= baseCount; i++) {
             if (day >= 25 && i % 3 == 0) {
-                
+
                 wave.add(new Zombie("Obrněný Zombie #" + i, 60 + (day * 3), 20 + day));
             } else if (day >= 15 && i % 2 == 0) {
                 

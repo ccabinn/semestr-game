@@ -4,8 +4,14 @@ import java.util.Random;
 
 public class WeatherManager {
     private WeatherType currentWeather = WeatherType.NORMAL;
+
     private int currentDisasterChance = 15; // pocatecni sance na pohromu
-    private int cooldownDays = 0;       // pocet dni klidu po pohrome
+    private int cooldownDays = 0;           // pocet dni klidu po pohrome
+    private int disasterDaysLeft = 0;       // dny do konce pohromy
+
+    private static final int DISASTER_DURATION_DAYS = 3;
+    private static final int COOLDOWN_DURATION_DAYS = 3;
+
     private final Random random = new Random();
     private int wellLevel = 0;
 
@@ -15,6 +21,22 @@ public class WeatherManager {
         if (currentDay <= 5) {
             currentWeather = WeatherType.NORMAL;
             return "Počasí: " + WeatherType.NORMAL.getDescription();
+        }
+
+        // reseni katastrofy
+        if (disasterDaysLeft > 0) {
+            disasterDaysLeft--;
+
+            if (disasterDaysLeft > 0) {
+                // stale probiha
+                return "EXTRÉMNÍ POČASÍ POKRAČUJE: " + currentWeather.getDescription() +
+                        " (Zbývá " + disasterDaysLeft + " " + (disasterDaysLeft == 1 ? "den" : "dní") + ")";
+            } else {
+                // dnes skoncila, zitra zacina cooldown
+                currentWeather = WeatherType.NORMAL;
+                cooldownDays = COOLDOWN_DURATION_DAYS;
+                return "Počasí: " + WeatherType.NORMAL.getDescription() + " (Klid po pohromě)";
+            }
         }
 
         // garance klidu po pohrome
@@ -29,8 +51,10 @@ public class WeatherManager {
         if (roll < currentDisasterChance) {
             currentWeather = random.nextBoolean() ? WeatherType.DROUGHT : WeatherType.FLOOD;
             currentDisasterChance = 15; // reset sance
-            cooldownDays = 3;       // nastaveni cooldownu
-            return "EXTRÉMNÍ POČASÍ: " + currentWeather.getDescription();
+            disasterDaysLeft = DISASTER_DURATION_DAYS - 1;
+
+            return "EXTRÉMNÍ POČASÍ: " + currentWeather.getDescription() +
+                    " (Bude trvat celkem " + DISASTER_DURATION_DAYS + " " + (DISASTER_DURATION_DAYS == 1 ? "den" : (DISASTER_DURATION_DAYS > 4 ? "dní" : "dny")) + ")";
         } else {
             currentWeather = WeatherType.NORMAL;
             currentDisasterChance = Math.min(90, currentDisasterChance + 10); // narust sance o 10%
@@ -41,6 +65,12 @@ public class WeatherManager {
     public void setCurrentWeather(WeatherType weatherType) {
         if (weatherType != null) {
             this.currentWeather = weatherType;
+            if (weatherType != WeatherType.NORMAL) {
+                this.disasterDaysLeft = Math.max(0, DISASTER_DURATION_DAYS - 1);
+                this.cooldownDays = 0;
+            } else {
+                this.disasterDaysLeft = 0;
+            }
         }
     }
 
