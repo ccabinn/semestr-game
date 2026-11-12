@@ -95,7 +95,29 @@ public class GameManager implements GameContext {
         String param1 = parts.length > 1 ? parts[1].toLowerCase() : null;
         String param2 = parts.length > 2 ? parts[2].toLowerCase() : null;
 
+        // KONTROLA GAME OVER: Zablokování hry po prohře/výhře
+        if (isGameOver) {
+            if (command.equals("konec") || command.equals("exit") || command.equals("quit")) {
+                System.exit(0); // Okamžitě ukončí celou Java aplikaci (GUI i CLI)
+                return "Hra se ukončuje...";
+            }
+            // po konci hry jde jeste nacist ulozenou hru a zkusit to znovu
+            if (command.equals("nacti") || command.equals("load")) {
+                return loadGame(param1);
+            }
+            if (command.equals("ulozene") || command.equals("saves")) {
+                return listSavedGames();
+            }
+            return "Hra skončila. Můžeš načíst uloženou hru ('nacti [nazev]') nebo hru ukončit ('konec').";
+        }
+
         return switch (command) {
+            // Ukončení hry kdykoliv během hraní
+            case "konec", "exit", "quit" -> {
+                System.exit(0);
+                yield "Hra se ukončuje...";
+            }
+
             // Základní pohyb a stav
             case "jdi", "go", "move" -> (param1 == null) ? "Kam chceš jít? Použití: jdi <id_lokality>"
                     : gamePlan.movePlayer(player, param1);
@@ -304,19 +326,28 @@ public class GameManager implements GameContext {
     // jez <jidlo>: snedeni jidla z inventare doplni energii o "value" z items.json
     private String handleEat(String itemId) {
         if (itemId == null) return "Co chceš sníst? Použití: jez <jidlo>";
+
         Item item = itemCatalog.getItem(itemId);
+
         if (item == null || item.getType() != ItemType.FOOD) {
             return "'" + itemId + "' se nedá sníst.";
         }
+
         if (!player.getInventory().hasItem(itemId, 1)) {
             return "Tento předmět nemáš v inventáři.";
         }
+
         if (player.getEnergy() >= 100) {
             return "Nemáš hlad, energii máš plnou (100/100).";
         }
+
+        // Načítá přesnou hodnotu doplnění energie přímo z items.json (atribut value)
+        int dodanaEnergie = item.getValue();
+
         player.getInventory().removeItem(itemId, 1);
         int before = player.getEnergy();
-        player.addEnergy(item.getValue());
+        player.addEnergy(dodanaEnergie);
+
         return "Snědl jsi " + item.getName() + ". Energie +" + (player.getEnergy() - before)
                 + " (" + player.getEnergy() + "/100).";
     }
@@ -329,6 +360,10 @@ public class GameManager implements GameContext {
         syncDefenseStatusFromInventory();
         if (defenseStatus.getGuardDogs() == 0) {
             return "Nemáš žádné hlídací psy. Kup si je na Místním trhu.";
+        }
+        // plne nasyceni psi: krmeni by se spotrebovalo zbytecne (sytost se nescita)
+        if (defenseStatus.getDogFoodDaysLeft() >= DefenseStatus.DOG_FOOD_DAYS) {
+            return "Psi jsou ještě sytí na " + DefenseStatus.DOG_FOOD_DAYS + " dní, krmení si nech na později.";
         }
         if (!player.getInventory().removeItem("krmeni_psy", 1)) {
             return "Nemáš krmení pro psy. Koupíš ho na Místním trhu.";
@@ -450,10 +485,26 @@ public class GameManager implements GameContext {
                 weatherManager.isFlooded()
         );
 
+        // Zde řešíme situaci, kdy obrana padla
         if (raidResult.isAttackOccurred() && !raidResult.isDefenseSuccessful()) {
             sb.append(raidResult.getSummaryLog()).append("\n\n");
             sb.append("Z důvodu prolomení obrany se hráč v noci nemohl vyspat a NEDOPLNIL si energii!\n");
+
+            // NOVÉ: Zombíci zničí všechny plodiny na poli
+            boolean destroyedSomething = false;
+            for (Plot plot : fieldManager.getPlots()) {
+                if (!plot.isEmpty()) {
+                    plot.clear(); // Vyčistí záhonek (stejně jako při vytrhání uschlé plodiny)
+                    destroyedSomething = true;
+                }
+            }
+
+            if (destroyedSomething) {
+                sb.append("Zombíci navíc pošlapali a ZNIČILI veškerou úrodu na záhoncích!\n");
+            }
+
         } else {
+            // Obrana vydržela nebo útok nebyl
             if (raidResult.isAttackOccurred()) {
                 sb.append(raidResult.getSummaryLog()).append("\n\n");
             }
@@ -472,6 +523,9 @@ public class GameManager implements GameContext {
         String weatherReport = weatherManager.advanceWeather(currentDay);
         sb.append("=== PROBUDIL SES DO DNE ").append(currentDay).append(" ===\n");
         sb.append(weatherReport);
+
+        // Zkontroluje, zda hráč po zničení úrody nezkrachoval
+        checkBankruptcy(sb);
 
         return sb.toString().trim();
     }
@@ -532,7 +586,7 @@ public class GameManager implements GameContext {
         syncDefenseStatusFromInventory();
         String dogs = defenseStatus.getGuardDogs() == 0 ? "žádní"
                 : defenseStatus.getGuardDogs() + " (" + (defenseStatus.areDogsFed()
-                    ? "nakrmení ještě " + defenseStatus.getDogFoodDaysLeft() + " dní" : "HLADOVÍ") + ")";
+                ? "nakrmení ještě " + defenseStatus.getDogFoodDaysLeft() + " dní" : "HLADOVÍ") + ")";
         return "Obrana: psi " + dogs
                 + " | ploty " + defenseStatus.getWoodenFences()
                 + " | el. ohrady " + defenseStatus.getElectricFences()
@@ -653,7 +707,8 @@ public class GameManager implements GameContext {
                 lastType = item.getType();
                 sb.append("\n\n--- ").append(lastType.getDisplayName().toUpperCase()).append(" ---");
             }
-            sb.append(String.format("\n- ID: %-20s | %-22s | Cena: %d Kč",
+            sb.append(String.format("\nID: %-20s | %-22s | Cena: %d Kč"
+                    ,
                     item.getId(), item.getName(), item.getPrice()));
         }
 
@@ -704,6 +759,39 @@ public class GameManager implements GameContext {
             return val > 0 ? val : 1;
         } catch (NumberFormatException e) {
             return 1;
+        }
+    }
+
+    private void checkBankruptcy(StringBuilder sb) {
+        // 1. Zjistíme, jestli něco roste na poli (pokud ano, hráč ještě může něco sklidit)
+        boolean hasCropsOnField = false;
+        for (Plot plot : fieldManager.getPlots()) {
+            if (!plot.isEmpty() && !plot.isWithered()) {
+                hasCropsOnField = true;
+                break;
+            }
+        }
+
+        // 2. Zjistíme, jestli má hráč nějaké předměty k prodeji nebo zasazení
+        boolean hasItemsInInventory = !player.getInventory().getItems().isEmpty();
+
+        // 3. Zjistíme, jestli má hráč peníze alespoň na nejlevnější semínko
+        //    (cena se bere z items.json, aby sedela i po zmene cen)
+        int minSeedPrice = itemCatalog.getCatalog().values().stream()
+                .filter(item -> item.getType() == ItemType.SEED)
+                .mapToInt(Item::getPrice)
+                .min()
+                .orElse(0);
+
+        // 4. Pokud nemá plodiny, nemá předměty a nemá peníze = PROHRA
+        if (!hasCropsOnField && !hasItemsInInventory && player.getMoney() < minSeedPrice) {
+            isGameOver = true;
+            sb.append("\n====================================================\n");
+            sb.append("*** GAME OVER ***\n");
+            sb.append("Zombíci ti zničili úrodu. Nemáš peníze na obnovení farmy, \n");
+            sb.append("nemáš nic k prodeji a pole je prázdné.\n");
+            sb.append("Tvá farma zkrachovala...\n");
+            sb.append("====================================================\n");
         }
     }
 

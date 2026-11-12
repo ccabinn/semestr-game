@@ -408,8 +408,8 @@
     "name": "Hlídací pes",
     "type": "DEFENSE_PASSIVE",
     "price": 60,
-    "value": 15,
-    "description": "Hlídací pes dodávající +15 pasivní obrany (pokud je nakrmený)",
+    "value": 25,
+    "description": "Hlídací pes dodávající +25 pasivní obrany (pokud je nakrmený)",
     "availableLocations": [
       "local_market"
     ]

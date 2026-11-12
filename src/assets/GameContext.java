@@ -1,6 +1,6 @@
 package assets;
 
-// Rozhrani, pres ktere NPC a ukoly pracuji se hrou (inventar, penize, vypis).
+// Rozhrani, pres ktere NPC a ukoly pracuji se hrou
 // Implementuje ho GameManager, takze balicek assets nemusi znat Player ani Inventory.
 public interface GameContext {
     String getCurrentLocationId();

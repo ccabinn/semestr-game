@@ -12,19 +12,18 @@ public class ZombieWaveFactory {
         }
 
 
-        int baseCount = 1 + ((day - 10) / 2);
+        int baseCount = 1 + (day - 10) / 2;
 
         for (int i = 1; i <= baseCount; i++) {
-            int waveDay = day - 10; // Počítáme jen dny od začátku invaze
+            if (day >= 25 && i % 3 == 0) {
 
-            if (day >= 15 && i % 3 == 0) { // Obrněný zombie až od 15. dne
-                wave.add(new Zombie("Obrněný Zombie #" + i, 40 + (waveDay * 3), 15 + waveDay));
-
-            } else if (day >= 12 && i % 2 == 0) { // Běžec od 12. dne
-                wave.add(new Zombie("Běžec #" + i, 25 + (waveDay * 2), 10 + waveDay));
-
-            } else { // Základní chodec
-                wave.add(new Zombie("Chodec #" + i, 15 + (waveDay * 2), 5 + waveDay));
+                wave.add(new Zombie("Obrněný Zombie #" + i, 60 + (day * 3), 20 + day));
+            } else if (day >= 15 && i % 2 == 0) {
+                
+                wave.add(new Zombie("Běžec #" + i, 30 + (day * 2), 12 + day));
+            } else {
+                
+                wave.add(new Zombie("Chodec #" + i, 20 + (day * 2), 8 + (day / 2)));
             }
         }
 
