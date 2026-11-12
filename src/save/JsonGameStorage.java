@@ -22,7 +22,7 @@ public class JsonGameStorage implements GameStorage {
     private static final String VALID_NAME = "[a-z0-9_-]{1,30}";
 
     private final Path directory;
-    private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    private final Gson gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
 
     public JsonGameStorage(Path directory) {
         this.directory = directory;

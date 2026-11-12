@@ -114,6 +114,32 @@ class ShopManagerTest {
     }
 
     @Test
+    void hugeCountIsRejectedInsteadOfOverflowing() {
+        shop.buyItem("chleb", 300_000_000, player); // 8 * 300 mil. by preteklo int
+        assertEquals(0, player.getInventory().getItemCount("chleb"));
+        assertEquals(1020, player.getMoney());
+    }
+
+    @Test
+    void atMostFourSprinklers() {
+        goTo("city_market");
+        player.addMoney(1000);
+        shop.buyItem("kropitko", 4, player);
+        int money = player.getMoney();
+        shop.buyItem("kropitko", 1, player); // pate uz ne
+        assertEquals(4, player.getInventory().getItemCount("kropitko"));
+        assertEquals(money, player.getMoney());
+    }
+
+    @Test
+    void upgradesCannotBeSold() {
+        goTo("city_market");
+        player.getInventory().addItem("kropitko", 1);
+        shop.sellItem("kropitko", 1, player);
+        assertEquals(1, player.getInventory().getItemCount("kropitko"));
+    }
+
+    @Test
     void cannotBuyWorseOrSameVehicleAgain() {
         player.setBestVehicle(TransportType.VAN);
         shop.buyItem("auto", 1, player);

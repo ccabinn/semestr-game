@@ -69,7 +69,7 @@ class FieldManagerTest {
         player.getInventory().addItem("seminko_obili", 2);
         field.plantCrop("obili", player, itemCatalog);
         field.plantCrop("obili", player, itemCatalog);
-        field.tendPlots(player, false);
+        field.tendPlots(player, false, false);
         assertEquals(90, player.getEnergy());
     }
 
@@ -77,8 +77,26 @@ class FieldManagerTest {
     void droughtDoublesWateringCost() {
         player.getInventory().addItem("seminko_obili", 1);
         field.plantCrop("obili", player, itemCatalog);
-        field.tendPlots(player, true);
+        field.tendPlots(player, true, false);
         assertEquals(90, player.getEnergy());
+    }
+
+    @Test
+    void wateringDuringFloodCostsNoEnergy() {
+        player.getInventory().addItem("seminko_obili", 1);
+        field.plantCrop("obili", player, itemCatalog);
+        field.tendPlots(player, false, true);
+        assertEquals(100, player.getEnergy());
+    }
+
+    @Test
+    void tendingRemovesWitheredPlants() {
+        player.getInventory().addItem("seminko_obili", 1);
+        field.plantCrop("obili", player, itemCatalog);
+        field.advanceDay(false, false);                 // nezalito -> uschne
+        assertTrue(field.getPlots().get(0).isWithered());
+        field.tendPlots(player, false, false);
+        assertTrue(field.getPlots().get(0).isEmpty());
     }
 
     @Test
@@ -88,7 +106,7 @@ class FieldManagerTest {
 
         player.getInventory().addItem("seminko_obili", 1);
         field.plantCrop("obili", player, itemCatalog);
-        field.tendPlots(player, false);
+        field.tendPlots(player, false, false);
         assertEquals(99, player.getEnergy()); // 5 - 4 kropitka = 1 energie
     }
 }

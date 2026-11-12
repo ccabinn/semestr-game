@@ -80,6 +80,16 @@ class SaveLoadTest {
     }
 
     @Test
+    void corruptedQuestStateIsRejectedWithoutCrash() throws IOException {
+        game.processCommand("uloz ukoly");
+        Path file = tempDir.resolve("ukoly.json");
+        Files.writeString(file, Files.readString(file).replaceFirst("=INACTIVE", "=HOTOVO"));
+
+        String result = game.processCommand("nacti ukoly"); // drive vyhodilo vyjimku
+        assertTrue(result.contains("poškozený stav úkolů"));
+    }
+
+    @Test
     void savesAreListed() {
         game.processCommand("uloz prvni");
         game.processCommand("uloz druha");

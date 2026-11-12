@@ -4,6 +4,7 @@ import game.GameManager;
 import inventory.Item;
 import inventory.ItemCatalog;
 import inventory.ItemType;
+import inventory.ShopManager;
 import player.Player;
 
 import javax.swing.*;
@@ -100,7 +101,7 @@ public class ShopDialog extends JDialog {
         List<Item> availableItems = new ArrayList<>(gameManager.getItemCatalog().getItemsForLocation(currentLocationId));
 
         // serazeni podle kategorie a pak podle abecedy
-        Collator collator = Collator.getInstance(new Locale("cs", "CZ"));
+        Collator collator = Collator.getInstance(Locale.of("cs", "CZ"));
         availableItems.sort((a, b) -> {
             int catCompare = Integer.compare(getCategoryOrder(a.getType()), getCategoryOrder(b.getType()));
             if (catCompare != 0) return catCompare;
@@ -108,7 +109,8 @@ public class ShopDialog extends JDialog {
         });
 
         for (Item item : availableItems) {
-            buyListModel.addElement(new ItemWrapper(item));
+            ShopManager shop = gameManager.getShopManager();
+            buyListModel.addElement(new ItemWrapper(item, shop.getPrice(item), shop.isLockedForPlayer(item)));
         }
     }
 
@@ -122,7 +124,8 @@ public class ShopDialog extends JDialog {
             Item item = gameManager.getItemCatalog().getItem(entry.getKey());
             if (item != null) {
                 int count = entry.getValue();
-                sellListModel.addElement(new InventoryItemWrapper(item, count, currentLocationId));
+                int sellPrice = gameManager.getShopManager().getSellPrice(item, currentLocationId);
+                sellListModel.addElement(new InventoryItemWrapper(item, count, sellPrice));
             }
         }
     }
@@ -173,13 +176,20 @@ public class ShopDialog extends JDialog {
     // pomocna trida pro nakup
     private static class ItemWrapper {
         private final Item item;
+        private final int price;      // cena po slevach z ukolu
+        private final boolean locked; // zbozi zamcene do splneni ukolu
 
-        public ItemWrapper(Item item) { this.item = item; }
+        public ItemWrapper(Item item, int price, boolean locked) {
+            this.item = item;
+            this.price = price;
+            this.locked = locked;
+        }
         public Item getItem() { return item; }
 
         @Override
         public String toString() {
-            return String.format("[%s] %s — %d Kč", getCategoryLabel(item.getType()), item.getName(), item.getPrice());
+            return String.format("[%s] %s — %d Kč%s", getCategoryLabel(item.getType()), item.getName(), price,
+                    locked ? " (ZAMČENO)" : "");
         }
 
         private String getCategoryLabel(ItemType type) {
@@ -200,25 +210,19 @@ public class ShopDialog extends JDialog {
     private static class InventoryItemWrapper {
         private final Item item;
         private final int count;
-        private final String locationId;
+        private final int sellPrice; // vykupni cena pocita ShopManager (stejne jako prikaz "prodej")
 
-        public InventoryItemWrapper(Item item, int count, String locationId) {
+        public InventoryItemWrapper(Item item, int count, int sellPrice) {
             this.item = item;
             this.count = count;
-            this.locationId = locationId;
+            this.sellPrice = sellPrice;
         }
 
         public Item getItem() { return item; }
 
         @Override
         public String toString() {
-            int unitSellPrice;
-            if (item.getType() == ItemType.CROP) {
-                unitSellPrice = locationId.equals("city_market") ? item.getPrice() * 2 : item.getPrice();
-            } else {
-                unitSellPrice = (int) Math.round(item.getPrice() * 0.8);
-            }
-            return String.format("%s (%d ks) — Výkup: %d Kč/ks", item.getName(), count, unitSellPrice);
+            return String.format("%s (%d ks) — Výkup: %d Kč/ks", item.getName(), count, sellPrice);
         }
     }
 }

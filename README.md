@@ -44,7 +44,8 @@ Zdrojové kódy jsou ve složce `src/`, testy ve složce `test/` (nastaveno v `p
   * **8 druhů zeleniny** (*obilí, hlávkový salát, cibule, špenát, mrkev, brambory, dýně, česnek*) – vyžadují zálivku **obden** (`EVERY_OTHER_DAY`).
   * **8 druhů ovoce** (*jahody, maliny, borůvky, jablka, hrušky, meruňky, broskve, meloun*) – vyžadují zálivku **každý den** (`EVERY_DAY`). Nákup a sázení ovoce se odemkne až po zasazení všech 8 druhů zeleniny.
 * Zalévání spotřebovává energii (**5 EN/záhonek**, během sucha **10 EN/záhonek**). Zakoupením až **4 kropítek** lze spotřebu snížit až na 1 EN/záhonek.
-* Nezalité plodiny při přechodu do dalšího dne **uschnou**. Uschlé plodiny se odstraní příkazem `sklid`, který zároveň sklidí zralou úrodu.
+* `obstarej` zalévá jen záhonky, které ten den vodu opravdu potřebují (zelenina obden, ovoce každý den).
+* Nezalité plodiny při přechodu do dalšího dne **uschnou**. Uschlé plodiny se odstraní příkazem `obstarej` nebo `sklid`.
 
 ### 2. Energie, spánek a jídlo
 * Maximální energie je **100 EN**. Spánek v Domě doplní **+50 EN** a posune hru do dalšího dne.
@@ -79,15 +80,17 @@ Zdrojové kódy jsou ve složce `src/`, testy ve složce `test/` (nastaveno v `p
 
 ### 4. Ekonomika a obchodování (`inventory`, `gui.ShopDialog`)
 * **Místní trh:** Semínka, základní jídlo, hlídací pes (60 Kč), krmení pro psy (30 Kč), **Ojeté Auto** (150 Kč). Výkup plodin za **100 %** základní ceny.
-* **Městský trh:** Semínka, vydatná jídla, krmení pro psy, vylepšení farmy (**Kropítko**, **Hlubší studna**). Výkup plodin za **200 % (2×)** základní ceny.
+* **Městský trh:** Semínka, vydatná jídla, krmení pro psy, **Kropítko** (100 Kč, nejvýše 4 ks). Výkup plodin za **200 % (2×)** základní ceny.
 * **Autobazar:** Prodej **Dodávky** (300 Kč, po splnění úkolu Mechanika Romana se slevou za 220 Kč).
 * **Army shop:** Dřevěný plot, puška, brokovnice; po úkolu Seržanta Krále odemčení **Elektrické ohrady** a **Automatické věže (Turret)** + 20 % sleva na zbraně. Do té doby jsou v nabídce označeny jako `[ZAMČENO]`.
 * Zakoupené vozidlo se neukládá do inventáře, ale rovnou se stane hráčovým dopravním prostředkem.
+* Kropítko (koupené i získané od Bohouše) se ihned nainstaluje na pole a nelze ho prodat.
+* Najednou lze koupit nejvýše 99 kusů jednoho předmětu.
 
 ### 5. Počasí a noční nájezdy zombíků (`weather`, `zombies`)
-* **Počasí (`WeatherManager`):** Prvních 5 dní je slunečno (`NORMAL`). Od 6. dne každý den roste pravděpodobnost pohromy; po pohromě následují 3 dny klidu:
+* **Počasí (`WeatherManager`):** Prvních 5 dní je slunečno (`NORMAL`). Od 6. dne každý den roste pravděpodobnost pohromy. Pohroma trvá **3 dny**, poté následují 3 dny klidu:
   * **Sucho (`DROUGHT`):** Zdvojnásobuje spotřebu energie na zalévání a vyžaduje každodenní zálivku všech plodin.
-  * **Záplava (`FLOOD`):** Zkratuje elektrické ohrady a automatické věže během nočního útoku.
+  * **Záplava (`FLOOD`):** Zalije všechny záhonky automaticky (zalévání není potřeba), ale zkratuje elektrické ohrady a automatické věže během nočního útoku.
 * **Noční nájezdy (`ZombieManager`):** Od **10. dne** útočí vlny zombíků, jejichž počet i síla rostou s každým dnem (*Chodec*, od 15. dne *Běžec*, od 25. dne *Obrněný Zombie*).
 * **Obrana farmy (`DefenseStatus`):** Síla každého obranného prvku se načítá z `items.json` (hodnota `value`):
 
@@ -143,7 +146,9 @@ semestr-game/
 │   ├── farming/PlotTest.java
 │   ├── game/DogFeedingTest.java
 │   ├── game/GameOverTest.java
+│   ├── game/NightDefenseTest.java
 │   ├── game/SaveLoadTest.java
+│   ├── game/UpgradeAndDevTest.java
 │   ├── inventory/InventoryTest.java
 │   ├── inventory/ShopManagerTest.java
 │   ├── map/MovementTest.java
@@ -232,7 +237,7 @@ Příkazy pro farmaření fungují na lokalitě `field` (Pole).
 | :--- | :--- | :--- | :--- | :--- |
 | `pole` | `zahony`, `fieldstatus` | *žádný* | Zobrazí stav všech 6 záhonků (plodina, fáze růstu, stav zálivky). | `pole` |
 | `zasad` | `plant` | `<id_seminka>` | Zasadí vybrané semínko na první volný záhonek. | `zasad seminko_obili` |
-| `obstarej`| `zali`, `water` | *žádný* | Zalije všechny zasazené záhonky (spotřebovává EN). | `obstarej` |
+| `obstarej`| `zali`, `water` | *žádný* | Zalije záhonky, které dnes potřebují vodu (spotřebovává EN), a vytrhá uschlé plodiny. Při záplavě není potřeba. | `obstarej` |
 | `sklid` | `harvest` | *žádný* | Sklidí zralou úrodu do inventáře a vytrhá uschlé plodiny. | `sklid` |
 | `nakrm_psy` | *žádný* | *žádný* | Spotřebuje 1× krmení pro psy a nakrmí všechny hlídací psy na 5 dní. | `nakrm_psy` |
 
@@ -300,19 +305,21 @@ Tyto příkazy slouží pro rychlé testování mechanik, odlaďování úkolů 
 
 ## Testy
 
-Unit testy (JUnit 5) se spouští příkazem `mvn test` nebo v IntelliJ IDEA (pravý klik na složku `test` → *Run 'All Tests'*). Projekt obsahuje **67 testů ve 12 testovacích třídách**.
+Unit testy (JUnit 5) se spouští příkazem `mvn test` nebo v IntelliJ IDEA (pravý klik na složku `test` → *Run 'All Tests'*). Projekt obsahuje **80 testů ve 14 testovacích třídách**.
 
 | Testovací třída | Co ověřuje |
 | :--- | :--- |
 | `InventoryTest` | Přidávání a odebírání předmětů, neexistující předměty. |
-| `ShopManagerTest` | Nákup a prodej, nedostatek peněz, výkup 2× na Městském trhu, zamčené zboží a slevy z úkolů, nákup vozidel. |
+| `ShopManagerTest` | Nákup a prodej, nedostatek peněz, výkup 2× na Městském trhu, zamčené zboží a slevy z úkolů, nákup vozidel, limit kusů a kropítek, neprodejná vylepšení. |
 | `NpcManagerTest` | Aktivace a odevzdání úkolu, kontrola požadavků, odměny, požadavky typu „nebo“, uložení stavů úkolů. |
-| `FieldManagerTest` | Sázení, odemčení ovoce, spotřeba energie při zalévání, sucho, kropítka. |
-| `PlotTest` | Růst plodin, zalévání obden / každý den, usychání, sklizeň. |
+| `FieldManagerTest` | Sázení, odemčení ovoce, spotřeba energie při zalévání, sucho, záplava, vytrhání uschlých plodin, kropítka. |
+| `PlotTest` | Růst plodin, zalévání obden / každý den, usychání, automatické zalití při záplavě, sklizeň. |
 | `MovementTest` | Cestování mezi lokalitami, požadované vozidlo, spotřeba energie, motorový tuning. |
 | `DefenseStatusTest` | Síla obrany z `items.json`, krmení psů, vliv záplav. |
 | `ZombieManagerTest` | Nájezdy až od 10. dne, nakrmení psi zabíjejí zombíky, silná obrana zastaví útok. |
 | `DogFeedingTest` | Příkaz `nakrm_psy`: spotřeba krmení, zákaz krmení sytých psů, krmení jen na Poli. |
+| `NightDefenseTest` | Obrana koupená během dne se v noci započítá, bez obrany zombíci prorazí. |
 | `GameOverTest` | Zničení úrody při prolomení obrany, prohra bankrotem, načtení hry po prohře. |
 | `JsonGameStorageTest` | Uložení a načtení souboru, chybějící a poškozený soubor, neplatný název. |
-| `SaveLoadTest` | Uložení celé hry a její obnovení v nové instanci, odmítnutí neplatného uložení. |
+| `SaveLoadTest` | Uložení celé hry a její obnovení v nové instanci, odmítnutí neplatného nebo poškozeného uložení. |
+| `UpgradeAndDevTest` | Kropítko z nákupu i od Bohouše funguje na poli, vývojářské příkazy `growall` a `money`. |

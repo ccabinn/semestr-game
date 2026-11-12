@@ -262,9 +262,14 @@ public class GameManager implements GameContext {
         if (s.inventory() == null || s.plots() == null || s.plantedVegetables() == null || s.questStates() == null) {
             return "v souboru chybí část dat.";
         }
-        if (s.plots().size() != fieldManager.getPlots().size()) {
+        if (s.plots().size() != fieldManager.getPlots().size() || s.plots().contains(null)) {
             return "špatný počet záhonků (" + s.plots().size() + ").";
         }
+
+        // stav ukolu musi mit tvar "npc:cislo=STAV", jinak by nacteni spadlo v pulce
+        boolean badQuestLine = s.questStates().stream()
+                .anyMatch(line -> line == null || !line.matches("[a-z0-9_]+:\\d+=(INACTIVE|ACTIVE|DONE)"));
+        if (badQuestLine) return "poškozený stav úkolů.";
 
         // Stream API: najdi predmety / plodiny, ktere hra nezna
         List<String> unknownItems = s.inventory().keySet().stream()
@@ -379,7 +384,7 @@ public class GameManager implements GameContext {
         String buyResult = shopManager.buyItem(itemId, buyCount, player);
 
         if (buyResult.startsWith("Koupil jsi")) {
-            handlePostPurchaseEffects(itemId, buyCount);
+            applyUpgradeEffect(itemId, buyCount);
         }
         return buyResult;
     }
@@ -436,7 +441,10 @@ public class GameManager implements GameContext {
     public void removeItem(String itemId, int count) { player.getInventory().removeItem(itemId, count); }
 
     @Override
-    public void addItem(String itemId, int count) { player.getInventory().addItem(itemId, count); }
+    public void addItem(String itemId, int count) {
+        player.getInventory().addItem(itemId, count);
+        applyUpgradeEffect(itemId, count); // napr. kropitko od Bohouse funguje stejne jako koupene
+    }
 
     @Override
     public void addMoney(int amount) { player.addMoney(amount); }
@@ -452,7 +460,7 @@ public class GameManager implements GameContext {
         switch (effect) {
             case TUNING_MOTORU -> {
                 player.setHasEngineTuning(true);
-                print("Motor je seřízený: cesty do Města tě stojí o 5 energie méně.");
+                print("Motor je seřízený: každá cesta autem nebo dodávkou tě stojí o 5 energie méně.");
             }
             case SLEVA_DODAVKA -> print("Dodávku teď v Autobazaru koupíš za 220 Kč.");
             case ARMADNI_TECHNIKA -> print("V Army shopu si teď můžeš koupit elektrickou ohradu a turrety.");
@@ -477,9 +485,11 @@ public class GameManager implements GameContext {
 
     // prochazeni dni
     public String advanceToNextDay() {
-        syncDefenseStatusFromInventory();
-
         StringBuilder sb = new StringBuilder();
+
+        // obranu (psi, ploty, vez, zbrane) je nutne nacist z inventare PRED najezdem,
+        // jinak by se nove koupene veci v noci nepocitaly
+        syncDefenseStatusFromInventory();
 
         NightRaidResult raidResult = zombieManager.resolveNightRaid(
                 currentDay,
@@ -532,28 +542,11 @@ public class GameManager implements GameContext {
         return sb.toString().trim();
     }
 
-    // side effects nakupu
-    private void handlePostPurchaseEffects(String itemId, int count) {
-        String id = itemId.toLowerCase();
-        switch (id) {
-            case "auto", "car" -> {
-                if (player.getBestVehicle().getLevel() < TransportType.CAR.getLevel()) {
-                    player.setBestVehicle(TransportType.CAR);
-                }
-            }
-            case "dodavka", "van" -> {
-                if (player.getBestVehicle().getLevel() < TransportType.VAN.getLevel()) {
-                    player.setBestVehicle(TransportType.VAN);
-                }
-            }
-            case "motorovy_tuning" -> player.setHasEngineTuning(true);
-
-            case "kropitko" -> {
-                for (int i = 0; i < count; i++) fieldManager.addSprinkler();
-            }
-            case "hlubsi_studna" -> {
-                for (int i = 0; i < count; i++) weatherManager.addWellLevel();
-            }
+    // vylepseni farmy: ziskane predmety (nakupem i odmenou) se hned projevi na farme
+    // (vozidla resi ShopManager, ostatni predmety zadny ucinek nemaji)
+    private void applyUpgradeEffect(String itemId, int count) {
+        if (itemId.equalsIgnoreCase("kropitko")) {
+            for (int i = 0; i < count; i++) fieldManager.addSprinkler();
         }
     }
 
@@ -610,13 +603,19 @@ public class GameManager implements GameContext {
                 if (param1 == null) yield "DEV: Použití: give <id_itemu> [pocet]";
                 int giveCount = parseCount(param2);
                 if (itemCatalog.getItem(param1) == null) yield "DEV: Předmět '" + param1 + "' neexistuje v katalogu!";
-                player.getInventory().addItem(param1, giveCount);
+                addItem(param1, giveCount); // stejne jako odmena z ukolu (kropitko se hned projevi)
                 yield "DEV: Přidáno " + giveCount + "x " + param1 + " do inventáře.";
             }
             case "addmoney", "money" -> {
-                int moneyAmount = parseCount(param1);
-                player.addMoney(moneyAmount);
-                yield "DEV: Přidáno " + moneyAmount + " Kč. Aktuální stav: " + player.getMoney() + " Kč.";
+                int moneyAmount;
+                try {
+                    moneyAmount = Integer.parseInt(param1);
+                } catch (NumberFormatException e) {
+                    yield "DEV: Použití: money <castka> (může být i záporná)";
+                }
+                if (moneyAmount >= 0) player.addMoney(moneyAmount);
+                else player.removeMoney(Math.min(-moneyAmount, player.getMoney()));
+                yield "DEV: Peníze změněny o " + moneyAmount + " Kč. Aktuální stav: " + player.getMoney() + " Kč.";
             }
             case "addenergy", "energy" -> {
                 int energyAmount = parseCount(param1);
@@ -696,7 +695,7 @@ public class GameManager implements GameContext {
             return "DEV: Katalog předmětů je prázdný.";
         }
 
-        Collator czechCollator = Collator.getInstance(new Locale("cs", "CZ"));
+        Collator czechCollator = Collator.getInstance(Locale.of("cs", "CZ"));
         allItems.sort(Comparator
                 .comparing(Item::getType)
                 .thenComparing((a, b) -> czechCollator.compare(a.getName(), b.getName()))
@@ -710,8 +709,7 @@ public class GameManager implements GameContext {
                 lastType = item.getType();
                 sb.append("\n\n--- ").append(lastType.getDisplayName().toUpperCase()).append(" ---");
             }
-            sb.append(String.format("\nID: %-20s | %-22s | Cena: %d Kč"
-                    ,
+            sb.append(String.format("\nID: %-20s | %-22s | Cena: %d Kč",
                     item.getId(), item.getName(), item.getPrice()));
         }
 
@@ -728,7 +726,8 @@ public class GameManager implements GameContext {
                 "- prodej <id> [pocet]   : Prodej předmětu z inventáře\n" +
                 "- zasad <id_plodiny>   : Zasazení semínka (pouze na poli)\n" +
                 "- obstarej              : Zalití a obstarání záhonků na poli\n" +
-                "- sklid                 : Sklizeň dozrálých plodin na poli\n" +
+                "- sklid                 : Sklizeň dozrálých plodin a vytrhání uschlých (pouze na poli)\n" +
+                "- pole                  : Stav všech záhonků (pouze na poli)\n" +
                 "- spi                   : Spánek a posun do dalšího dne (pouze v Domě)\n" +
                 "- jez <jidlo>           : Sní jídlo z inventáře a doplní energii (např. 'jez chleb')\n" +
                 "- nakrm_psy             : Nakrmí psy na 5 dní (pouze na poli, spotřebuje krmení)\n" +
@@ -737,7 +736,8 @@ public class GameManager implements GameContext {
                 "- ulozene               : Vypíše seznam uložených her\n" +
                 "- mluv <npc>            : Rozhovor s postavou (např. 'mluv bohous')\n" +
                 "- ukol <npc>            : Odevzdání úkolu postavě (např. 'ukol elena')\n" +
-                "- napoveda              : Vypíše tuto nápovědu";
+                "- napoveda              : Vypíše tuto nápovědu\n" +
+                "- konec                 : Ukončí hru";
     }
 
     private String getDevHelpText() {

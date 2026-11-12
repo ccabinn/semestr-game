@@ -13,6 +13,9 @@ import java.util.Locale;
 
 public class ShopManager {
 
+    public static final int MAX_BUY_COUNT = 99;    // vic kusu najednou nejde (ochrana proti preteceni ceny)
+    public static final int MAX_SPRINKLERS = 4;    // podle GDD max 4 kropitka
+
     private final ItemCatalog itemCatalog;
     private final NpcManager npcManager; // kvuli slevam a odemceni z ukolu
 
@@ -43,6 +46,9 @@ public class ShopManager {
         if (count <= 0) {
             return "Počet kusů musí být větší než 0.";
         }
+        if (count > MAX_BUY_COUNT) {
+            return "Najednou můžeš koupit nejvýše " + MAX_BUY_COUNT + " kusů.";
+        }
 
         Item item = itemCatalog.getItem(itemId);
         if (item == null) {
@@ -63,6 +69,12 @@ public class ShopManager {
         // kontrola na ovocna seminka
         if (item.getType() == ItemType.SEED && isFruitSeed(item.getId()) && !player.canPlantFruit()) {
             return "Tato semínka zatím nemůžeš koupit! Musíš nejprve zasadit všech 8 druhů zeleniny.";
+        }
+
+        // kropitek muze byt na poli nejvys 4 - dalsi by jen stalo penize
+        if (item.getId().equals("kropitko")
+                && player.getInventory().getItemCount("kropitko") + count > MAX_SPRINKLERS) {
+            return "Na pole se vejdou nejvýše " + MAX_SPRINKLERS + " kropítka.";
         }
 
         // vozidlo se nedava do inventare, jen se nastavi jako nejlepsi dopravni prostredek
@@ -115,23 +127,16 @@ public class ShopManager {
             return "Prodávat zboží můžeš pouze na Místním nebo Městském trhu!";
         }
 
+        // vylepseni uz je nainstalovane na farme, prodejem by hrac ziskal penize a ucinek mu zustal
+        if (item.getType() == ItemType.UPGRADE) {
+            return item.getName() + " je nainstalované na farmě a nedá se prodat.";
+        }
+
         if (!player.getInventory().hasItem(item.getId(), count)) {
             return "Nemáš v inventáři " + count + "x " + item.getName() + "!";
         }
 
-        int unitPrice;
-
-        if (item.getType() == ItemType.CROP) {
-            // plodiny 100% na local market, 200% na city market
-            unitPrice = item.getPrice();
-            if (currentLocationId.equals("city_market")) {
-                unitPrice *= 2;
-            }
-        } else {
-            // ostatni predmety vykup za 80%
-            unitPrice = (int) Math.round(item.getPrice() * 0.8);
-        }
-
+        int unitPrice = getSellPrice(item, currentLocationId);
         int totalPrice = unitPrice * count;
 
         player.getInventory().removeItem(item.getId(), count);
@@ -139,6 +144,18 @@ public class ShopManager {
 
         return "Prodal jsi " + count + "x " + item.getName() + " za " + totalPrice + " Kč (" + unitPrice + " Kč/ks).";
     }
+    // vykupni cena za kus: plodiny 100 % (Mistni trh) / 200 % (Mestsky trh), ostatni veci 80 %
+    public int getSellPrice(Item item, String locationId) {
+        if (item.getType() == ItemType.CROP) {
+            return "city_market".equals(locationId) ? item.getPrice() * 2 : item.getPrice();
+        }
+        return (int) Math.round(item.getPrice() * 0.8);
+    }
+
+    public boolean isLockedForPlayer(Item item) {
+        return isLocked(item);
+    }
+
     public String getShopOffers(Player player) {
         String locId = player.getCurrentLocation().getId();
         List<Item> availableItems = new ArrayList<>(itemCatalog.getItemsForLocation(locId));

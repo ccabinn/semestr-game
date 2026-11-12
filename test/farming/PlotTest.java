@@ -32,8 +32,8 @@ class PlotTest {
     void wateredVegetableGrowsAndIsHarvestable() {
         plot.plant(vegetable);
         plot.water();
-        plot.advanceDay(false);       // den 1: zalito -> roste
-        plot.advanceDay(false);       // den 2: obden, vcera zalito -> nemusi se zalevat
+        plot.advanceDay(false, false);       // den 1: zalito -> roste
+        plot.advanceDay(false, false);       // den 2: obden, vcera zalito -> nemusi se zalevat
         assertTrue(plot.isMature());
         assertSame(vegetable, plot.harvest());
         assertTrue(plot.isEmpty());   // po sklizni je zahonek volny
@@ -42,7 +42,7 @@ class PlotTest {
     @Test
     void unwateredPlantWithers() {
         plot.plant(vegetable);
-        plot.advanceDay(false); // hned prvni den nezalito
+        plot.advanceDay(false, false); // hned prvni den nezalito
         assertTrue(plot.isWithered());
         assertNull(plot.harvest());
     }
@@ -51,9 +51,9 @@ class PlotTest {
     void fruitNeedsWaterEveryDay() {
         plot.plant(fruit);
         plot.water();
-        plot.advanceDay(false);
+        plot.advanceDay(false, false);
         assertFalse(plot.isWithered());
-        plot.advanceDay(false); // druhy den nezalito -> ovoce uschne
+        plot.advanceDay(false, false); // druhy den nezalito -> ovoce uschne
         assertTrue(plot.isWithered());
     }
 
@@ -61,17 +61,25 @@ class PlotTest {
     void droughtRequiresWateringEveryDayEvenForVegetables() {
         plot.plant(vegetable);
         plot.water();
-        plot.advanceDay(true);
-        assertTrue(plot.requiresWateringToday(true));
-        plot.advanceDay(true); // obden by stacilo, ale je sucho
+        plot.advanceDay(true, false);
+        assertTrue(plot.requiresWateringToday(true, false));
+        plot.advanceDay(true, false); // obden by stacilo, ale je sucho
         assertTrue(plot.isWithered());
+    }
+
+    @Test
+    void floodWatersPlantAutomatically() {
+        plot.plant(fruit);              // ovoce potrebuje vodu kazdy den
+        plot.advanceDay(false, true);   // nezalito, ale je zaplava
+        assertFalse(plot.isWithered());
+        assertFalse(plot.requiresWateringToday(false, true));
     }
 
     @Test
     void immaturePlantCannotBeHarvested() {
         plot.plant(vegetable);
         plot.water();
-        plot.advanceDay(false);
+        plot.advanceDay(false, false);
         assertFalse(plot.isMature());
         assertEquals(1, plot.getDaysUntilHarvest());
         assertNull(plot.harvest());

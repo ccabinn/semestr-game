@@ -499,9 +499,7 @@
     "price": 120,
     "value": 1,
     "description": "Prodlouží výdrž studny během sucha o +1 den za každou úroveň",
-    "availableLocations": [
-      "city_market"
-    ]
+    "availableLocations": []
   },
   {
     "id": "auto",

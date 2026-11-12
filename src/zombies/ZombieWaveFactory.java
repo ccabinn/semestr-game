@@ -17,13 +17,13 @@ public class ZombieWaveFactory {
         for (int i = 1; i <= baseCount; i++) {
             if (day >= 25 && i % 3 == 0) {
 
-                wave.add(new Zombie("Obrněný Zombie #" + i, 60 + (day * 3), 20 + day));
+                wave.add(new Zombie("Obrněný Zombie #" + i, 60 + (day * 3), 10 + day));
             } else if (day >= 15 && i % 2 == 0) {
                 
-                wave.add(new Zombie("Běžec #" + i, 30 + (day * 2), 12 + day));
+                wave.add(new Zombie("Běžec #" + i, 30 + (day * 2), 6 + day));
             } else {
                 
-                wave.add(new Zombie("Chodec #" + i, 20 + (day * 2), 8 + (day / 2)));
+                wave.add(new Zombie("Chodec #" + i, 20 + (day * 2), 2 + (day / 2)));
             }
         }
 
