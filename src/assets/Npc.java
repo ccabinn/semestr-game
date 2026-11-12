@@ -31,12 +31,11 @@ public class Npc {
         return quests;
     }
 
+    // prvni nesplneny ukol (ukoly jdou po sobe, napr. 3 faze Eleny); null = vse splneno
     public Quest getCurrentQuest() {
-        for (Quest q : quests) {
-            if (q.getQuestState() != QuestState.DONE) {
-                return q;
-            }
-        }
-        return null;
+        return quests.stream()
+                .filter(q -> q.getQuestState() != QuestState.DONE)
+                .findFirst()
+                .orElse(null);
     }
 }

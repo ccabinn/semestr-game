@@ -23,13 +23,11 @@ public class CropCatalog {
         }
 
         // hledani podle seedItemId nebo cropItemId (napr seminko_obili nebo obili)
-        for (Crop crop : catalog.values()) {
-            if (crop.getSeedItemId().equalsIgnoreCase(key) || crop.getCropItemId().equalsIgnoreCase(key)) {
-                return crop;
-            }
-        }
-
-        return null;
+        return catalog.values().stream()
+                .filter(crop -> crop.getSeedItemId().equalsIgnoreCase(key)
+                        || crop.getCropItemId().equalsIgnoreCase(key))
+                .findFirst()
+                .orElse(null);
     }
 
     public Map<String, Crop> getCatalog() {
