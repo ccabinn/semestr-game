@@ -144,10 +144,18 @@ public class FieldManager {
 
     public String harvestAll(Player player, ItemCatalog itemCatalog) {
         int harvestedCount = 0;
+        int clearedCount = 0;
         StringBuilder sb = new StringBuilder("Sklizeň:\n");
 
         for (Plot p : plots) {
-            if (p.isMature()) {
+            // Pokud je plodina uschlá (mrtvá), vytrhneme ji
+            if (!p.isEmpty() && p.isWithered()) {
+                sb.append("- Vytrženo: uschlá plodina ze záhonku č. ").append(p.getIndex()).append("\n");
+                p.clear();
+                clearedCount++;
+            }
+            // Stávající logika: Pokud je plodina zralá, sklidíme ji
+            else if (p.isMature()) {
                 Crop harvested = p.harvest();
                 player.getInventory().addItem(harvested.getCropItemId(), 1);
 
@@ -159,8 +167,8 @@ public class FieldManager {
             }
         }
 
-        if (harvestedCount == 0) {
-            return "Žádné plodiny nejsou připraveny ke sklizni.";
+        if (harvestedCount == 0 && clearedCount == 0) {
+            return "Žádné plodiny nejsou připraveny ke sklizni a nebylo co vytrhat.";
         }
 
         return sb.toString().trim();
