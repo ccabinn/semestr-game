@@ -56,7 +56,7 @@ Ve světě se nachází **7 NPC postav** (`npcs.json`), které zadávají úkoly
 
 ## Struktura projektu
 
-
+```text
 semestr-game/
 ├── lib/
 │   └── gson-2.10.1.jar          # Knihovna Google Gson pro parsování JSON dat
@@ -114,7 +114,7 @@ semestr-game/
         ├── Zombie.java
         ├── ZombieManager.java
         └── ZombieWaveFactory.java
-
+```
 
 ## Standardní herní příkazy
 
