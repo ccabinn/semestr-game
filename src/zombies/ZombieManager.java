@@ -24,9 +24,22 @@ public class ZombieManager {
         }
 
         // Výpočet poškození obrany (při záplavě věže nevystřelí)
-        int attackPool = defense.getTurretDamage(isFlooded)
-                + defense.getPlayerWeaponDamage()
-                + defense.getEffectiveDogDamage();
+        int turretDamage = defense.getTurretDamage(isFlooded);
+        int weaponDamage = defense.getPlayerWeaponDamage();
+        int dogDamage = defense.getEffectiveDogDamage();
+        int attackPool = turretDamage + weaponDamage + dogDamage;
+
+        // vypis, kdo se v noci branil (aby hrac videl, co mu ktera obrana dava)
+        if (dogDamage > 0) {
+            log.append("Hlídací psi (").append(defense.getGuardDogs()).append(") se vrhli na zombíky: ")
+                    .append(dogDamage).append(" poškození.\n");
+        }
+        if (turretDamage > 0) {
+            log.append("Automatické věže spustily palbu: ").append(turretDamage).append(" poškození.\n");
+        }
+        if (weaponDamage > 0) {
+            log.append("Bránil ses se zbraní: ").append(weaponDamage).append(" poškození.\n");
+        }
 
         int totalKills = 0;
         for (Zombie zombie : wave) {

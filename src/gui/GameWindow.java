@@ -186,6 +186,7 @@ public class GameWindow extends JFrame {
                 addActionButton("Obstarat záhonky", "obstarej");
                 addActionButton("Sklidit úrodu", "sklid");
                 addActionButton("Stav záhonků", "pole");
+                addActionButton("Nakrmit psy", "nakrm_psy");
                 break;
             case "home":
                 addActionButton("Vyspat se (Nový den)", "spi");
